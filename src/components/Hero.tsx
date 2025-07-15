@@ -21,13 +21,13 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium uppercase tracking-wider mb-12">
-          MIND. BODY. SOUL.
+          Join the journey
         </h1>
         <Link
           href="/membership"
           className="btn-primary inline-block"
         >
-          Membership
+          Yoga Offerings
         </Link>
       </div>
     </section>
