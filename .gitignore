@@ -101,11 +101,9 @@ jspm_packages/
 .pnp.*
 
 # Large media files
-*.mov
-*.mp4
+\*.mp4
 *.avi
 *.mkv
 *.wmv
 *.flv
 *.webm
-public/videos/
