@@ -23,7 +23,7 @@ const GallerySection = () => {
   ];
 
   return (
-    <section className="py-8 bg-black">
+    <section className="py-8" style={{ backgroundColor: '#3D5019' }}>
       <div className="grid grid-cols-2 md:grid-cols-4">
         {images.map((image, index) => (
           <div key={index} className="relative aspect-square w-full overflow-hidden">

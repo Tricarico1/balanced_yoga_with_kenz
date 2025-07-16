@@ -22,18 +22,29 @@ const Navbar = () => {
     };
   }, []);
 
+  const scrollToYogaOfferings = () => {
+    const element = document.getElementById('yoga-offerings');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+  };
+
   return (
     <nav
       className={`w-full fixed top-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-white shadow-sm" : "bg-transparent"
+        scrolled ? "shadow-sm" : "bg-transparent"
       }`}
+      style={{ 
+        backgroundColor: scrolled ? '#F2E8DE' : 'transparent',
+        borderBottom: scrolled ? '1px solid #BB7458' : 'none'
+      }}
     >
       <div className="container-custom flex justify-between items-center py-4">
         <Link 
           href="/" 
-          className={`text-lg md:text-xl font-medium uppercase tracking-wider transition-colors duration-300 ${
-            scrolled ? "text-black" : "text-white"
-          }`}
+          className={`text-lg md:text-xl font-medium uppercase tracking-wider transition-colors duration-300`}
+          style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
         >
           Balanced Yoga with Kenz
         </Link>
@@ -42,31 +53,39 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-8">
           <Link 
             href="/" 
-            className={`nav-link transition-colors duration-300 ${
-              scrolled ? "text-black hover:text-gray-600" : "text-white hover:text-gray-300"
-            }`}
+            className="nav-link transition-colors duration-300 hover:opacity-80"
+            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
           >
             Home
           </Link>
+          <button
+            onClick={scrollToYogaOfferings}
+            className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80"
+            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+          >
+            Yoga Offerings
+          </button>
           <Link 
             href="/about" 
-            className={`nav-link transition-colors duration-300 ${
-              scrolled ? "text-black hover:text-gray-600" : "text-white hover:text-gray-300"
-            }`}
+            className="nav-link transition-colors duration-300 hover:opacity-80"
+            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
           >
             About
           </Link>
           <Link 
             href="/contact" 
-            className={`nav-link transition-colors duration-300 ${
-              scrolled ? "text-black hover:text-gray-600" : "text-white hover:text-gray-300"
-            }`}
+            className="nav-link transition-colors duration-300 hover:opacity-80"
+            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
           >
             Contact
           </Link>
           <Link
             href="/membership"
-            className="bg-black text-white px-4 py-2 ml-2 uppercase text-sm tracking-wider hover:bg-neutral-800 transition-colors"
+            className="px-4 py-2 ml-2 uppercase text-sm tracking-wider transition-colors hover:opacity-80"
+            style={{ 
+              backgroundColor: '#B97230', 
+              color: '#F2E8DE'
+            }}
           >
             Membership
           </Link>
@@ -74,9 +93,8 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className={`md:hidden transition-colors duration-300 ${
-            scrolled ? "text-black" : "text-white"
-          }`}
+          className="md:hidden transition-colors duration-300"
+          style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
@@ -87,20 +105,49 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white w-full py-4 shadow-lg">
+        <div 
+          className="md:hidden w-full py-4 shadow-lg"
+          style={{ backgroundColor: '#F2E8DE' }}
+        >
           <div className="container-custom flex flex-col space-y-4">
-            <Link href="/" className="nav-link text-black hover:text-gray-600" onClick={() => setMobileMenuOpen(false)}>
+            <Link 
+              href="/" 
+              className="nav-link hover:opacity-80" 
+              style={{ color: '#153F55' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
               Home
             </Link>
-            <Link href="/about" className="nav-link text-black hover:text-gray-600" onClick={() => setMobileMenuOpen(false)}>
+            <button
+              onClick={scrollToYogaOfferings}
+              className="nav-link text-left hover:opacity-80"
+              style={{ color: '#153F55' }}
+            >
+              Yoga Offerings
+            </button>
+            <Link 
+              href="/about" 
+              className="nav-link hover:opacity-80" 
+              style={{ color: '#153F55' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
               About
             </Link>
-            <Link href="/contact" className="nav-link text-black hover:text-gray-600" onClick={() => setMobileMenuOpen(false)}>
+            <Link 
+              href="/contact" 
+              className="nav-link hover:opacity-80" 
+              style={{ color: '#153F55' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
               Contact
             </Link>
             <Link
               href="/membership"
-              className="bg-black text-white px-4 py-2 uppercase text-sm tracking-wider hover:bg-neutral-800 transition-colors w-fit"
+              className="px-4 py-2 uppercase text-sm tracking-wider transition-colors w-fit hover:opacity-80"
+              style={{ 
+                backgroundColor: '#B97230', 
+                color: '#F2E8DE'
+              }}
               onClick={() => setMobileMenuOpen(false)}
             >
               Membership
