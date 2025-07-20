@@ -47,7 +47,7 @@ const Hero = () => {
           })
         }}
       >
-        <source src={isMobile ? "/videos/mobile_movie.mov" : "/videos/Website.mov"} type="video/mp4" />
+        <source src={isMobile ? "/videos/mobile_movie.webm" : "/videos/Website.webm"} type="video/webm" />
         Your browser does not support the video tag.
       </video>
 
