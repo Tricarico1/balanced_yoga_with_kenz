@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const MembershipSection = () => {
   return (
-    <section id="membership" className="pt-8 pb-16" style={{ backgroundColor: '#92A07F' }}>
+    <section id="membership" className="pt-8 pb-8" style={{ backgroundColor: '#92A07F' }}>
       <div className="container-custom">
         <div className="max-w-4xl mx-auto">
           {/* Membership Title with Bubble */}

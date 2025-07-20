@@ -62,6 +62,9 @@ const SubscribeSection = () => {
                 "/images/yoga_offering/Image 2.jpg"
               ]}
               alt="Blossom Yoga Studio"
+              height="h-80 lg:h-96"
+              objectFit="cover"
+              objectPosition="center"
             />
             
             <div className="space-y-4">

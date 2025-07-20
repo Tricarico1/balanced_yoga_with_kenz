@@ -1,5 +1,7 @@
 "use client";
 
+import ImageSlider from "./ImageSlider";
+
 const ExperienceSection = () => {
   return (
     <section id="experience" className="py-16" style={{ backgroundColor: '#3D5019' }}>
@@ -8,14 +10,37 @@ const ExperienceSection = () => {
           EXPERIENCE:
         </h2>
         
-        {/* Two Image Placeholders */}
+        {/* Two Image Sliders */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <div className="w-full h-64 rounded-lg flex items-center justify-center border-2" style={{ backgroundColor: '#000000', borderColor: '#E5E7EB' }}>
-            <p className="text-white text-center">Image/Video Placeholder</p>
-          </div>
-          <div className="w-full h-64 rounded-lg flex items-center justify-center border-2" style={{ backgroundColor: '#000000', borderColor: '#E5E7EB' }}>
-            <p className="text-white text-center">Image/Video Placeholder</p>
-          </div>
+          {/* Left Image Slider */}
+          <ImageSlider
+            images={[
+              "/images/exp_left/Image 1 (1).png",
+              "/images/exp_left/Image 2 (1).png",
+              "/images/exp_left/Image 3 (1).png",
+              "/images/exp_left/Image 4 (1).png",
+              "/images/exp_left/Image 5 (1).png"
+            ]}
+            alt="Experience Left"
+            height="h-64"
+            objectFit="cover"
+            objectPosition="center"
+          />
+          
+          {/* Right Image Slider */}
+          <ImageSlider
+            images={[
+              "/images/exp_right/Image 1 (2).png",
+              "/images/exp_right/Image 2 (2).png",
+              "/images/exp_right/Image 3 (2).png",
+              "/images/exp_right/Image 4 (2).png",
+              "/images/exp_right/Image 5 (2).png"
+            ]}
+            alt="Experience Right"
+            height="h-64"
+            objectFit="cover"
+            objectPosition="center"
+          />
         </div>
         
         {/* Text Content */}

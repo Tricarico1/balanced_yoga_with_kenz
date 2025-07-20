@@ -37,12 +37,9 @@ const Navbar = () => {
   const scrollToYogaOfferings = () => {
     const element = document.getElementById('yoga-offerings');
     if (element) {
-      const offset = 100; // Adjust this value to control the top spacing
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
       });
     }
     setMobileMenuOpen(false);
@@ -52,7 +49,7 @@ const Navbar = () => {
   const scrollToOnlineYoga = () => {
     const element = document.getElementById('online-yoga');
     if (element) {
-      const offset = 100; // Adjust this value to control the top spacing
+      const offset = 120;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
       window.scrollTo({
@@ -127,7 +124,7 @@ const Navbar = () => {
             onClick={() => {
               const element = document.getElementById('membership');
               if (element) {
-                const offset = 100;
+                const offset = 80;
                 const elementPosition = element.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.pageYOffset - offset;
                 window.scrollTo({
@@ -166,12 +163,9 @@ const Navbar = () => {
                 onClick={() => {
                   const element = document.getElementById('about');
                   if (element) {
-                    const offset = 100;
-                    const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - offset;
-                    window.scrollTo({
-                      top: offsetPosition,
-                      behavior: 'smooth'
+                    element.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
                     });
                   }
                   setAboutDropdownOpen(false);
@@ -185,12 +179,9 @@ const Navbar = () => {
                 onClick={() => {
                   const element = document.getElementById('experience');
                   if (element) {
-                    const offset = 100;
-                    const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - offset;
-                    window.scrollTo({
-                      top: offsetPosition,
-                      behavior: 'smooth'
+                    element.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
                     });
                   }
                   setAboutDropdownOpen(false);
@@ -208,12 +199,9 @@ const Navbar = () => {
             onClick={() => {
               const element = document.getElementById('contact');
               if (element) {
-                const offset = 100;
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - offset;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: 'smooth'
+                element.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
                 });
               }
             }}
@@ -281,7 +269,7 @@ const Navbar = () => {
               onClick={() => {
                 const element = document.getElementById('membership');
                 if (element) {
-                  const offset = 100;
+                  const offset = 80;
                   const elementPosition = element.getBoundingClientRect().top;
                   const offsetPosition = elementPosition + window.pageYOffset - offset;
                   window.scrollTo({
@@ -311,28 +299,40 @@ const Navbar = () => {
               </button>
               {aboutDropdownOpen && (
                 <div className="ml-4 mt-2 space-y-2">
-                  <Link
-                    href="#about"
-                    className="block text-sm transition-colors hover:opacity-80 text-right w-full pr-4"
-                    style={{ color: '#153F55' }}
+                  <button
                     onClick={() => {
+                      const element = document.getElementById('about');
+                      if (element) {
+                        element.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start'
+                        });
+                      }
                       setMobileMenuOpen(false);
                       setAboutDropdownOpen(false);
                     }}
+                    className="block text-sm transition-colors hover:opacity-80 text-right w-full pr-4"
+                    style={{ color: '#153F55' }}
                   >
                     The Inspiration
-                  </Link>
-                  <Link
-                    href="#experience"
-                    className="block text-sm transition-colors hover:opacity-80 text-right w-full pr-4"
-                    style={{ color: '#153F55' }}
+                  </button>
+                  <button
                     onClick={() => {
+                      const element = document.getElementById('experience');
+                      if (element) {
+                        element.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start'
+                        });
+                      }
                       setMobileMenuOpen(false);
                       setAboutDropdownOpen(false);
                     }}
+                    className="block text-sm transition-colors hover:opacity-80 text-right w-full pr-4"
+                    style={{ color: '#153F55' }}
                   >
                     Experience
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
@@ -342,12 +342,9 @@ const Navbar = () => {
               onClick={() => {
                 const element = document.getElementById('contact');
                 if (element) {
-                  const offset = 100;
-                  const elementPosition = element.getBoundingClientRect().top;
-                  const offsetPosition = elementPosition + window.pageYOffset - offset;
-                  window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
+                  element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                   });
                 }
                 setMobileMenuOpen(false);
@@ -356,7 +353,7 @@ const Navbar = () => {
               style={{ color: '#153F55' }}
             >
               Contact
-            </button>
+          </button>
           </div>
         </div>
       )}
