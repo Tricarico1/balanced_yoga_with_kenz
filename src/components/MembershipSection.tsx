@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import ContactPopup from "./ContactPopup";
 
 const MembershipSection = () => {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   return (
     <section id="membership" className="pt-8 pb-8" style={{ backgroundColor: '#92A07F' }}>
       <div className="container-custom">
@@ -19,18 +21,24 @@ const MembershipSection = () => {
           <div className="p-8 rounded-lg" style={{ backgroundColor: '#92A07F' }}>
             <p className="leading-relaxed text-center" style={{ color: '#F2E8DE' }}>
               No membership platform yet! But that is the goal as I grow and discover more yogis that want to join the journey. Please click{" "}
-              <Link 
-                href="/membership" 
-                className="underline hover:opacity-80 transition-opacity"
+              <button 
+                onClick={() => setIsPopupOpen(true)}
+                className="underline hover:opacity-80 transition-opacity cursor-pointer"
                 style={{ color: '#F2E8DE' }}
               >
                 here
-              </Link>
+              </button>
               {" "}if you would like to be notified when a members-only platform is up and running for premium content and first dibs at yoga retreats with Kenz.
             </p>
           </div>
         </div>
       </div>
+      
+      {/* Contact Popup */}
+      <ContactPopup 
+        isOpen={isPopupOpen} 
+        onClose={() => setIsPopupOpen(false)} 
+      />
     </section>
   );
 };

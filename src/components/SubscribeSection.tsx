@@ -72,7 +72,7 @@ const SubscribeSection = () => {
                 Blossom Yoga Studio
               </h3>
               <p className="leading-relaxed" style={{ color: '#3D5019' }}>
-                Join me at a local studio in downtown Ithaca, my favorite community in the Finger Lakes region of NY. My schedule is always shifting, so please check my socials and the studio website! Blossom yoga is a lovely place and divides their classes between "open level" and "advanced" yoga practice.
+                Join me at a local studio in downtown Ithaca, my favorite community in the Finger Lakes region of NY. My schedule is always shifting, so please check my socials and the studio website! Blossom Yoga is a lovely place and divides their classes between "open level" and "advanced" yoga practice.
               </p>
             </div>
           </div>

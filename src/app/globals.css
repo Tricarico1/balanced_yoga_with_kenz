@@ -74,6 +74,16 @@
     @apply relative h-screen flex items-center justify-center bg-black text-white;
   }
 
+  /* Mobile video specific styles for 9:16 aspect ratio */
+  @media (max-width: 768px) {
+    .hero-section video {
+      object-fit: cover;
+      object-position: center center;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
   .section-title {
     @apply text-3xl md:text-4xl lg:text-5xl uppercase font-medium tracking-wider mb-8;
   }

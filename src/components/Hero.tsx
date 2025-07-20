@@ -43,7 +43,7 @@ const Hero = () => {
         style={{ 
           filter: "brightness(0.6)",
           ...(isMobile && { 
-            objectPosition: 'center top' // Position to show top of video on mobile
+            objectPosition: 'center center' // Center the 9:16 video properly
           })
         }}
       >

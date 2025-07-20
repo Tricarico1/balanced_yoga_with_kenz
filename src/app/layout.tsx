@@ -12,6 +12,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Mackenzie Homan - Yoga Instructor",
   description: "Professional ballet dancer, certified yoga and pilates instructor",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
