@@ -1,8 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const Hero = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkDevice = () => {
+      if (typeof window !== 'undefined') {
+        const mobile = window.innerWidth < 768;
+        setIsMobile(mobile);
+      }
+    };
+
+    // Check on mount
+    checkDevice();
+
+    // Check on resize
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', checkDevice);
+      return () => window.removeEventListener('resize', checkDevice);
+    }
+  }, []);
+
   const scrollToYogaOfferings = () => {
     const element = document.getElementById('yoga-offerings');
     if (element) {
@@ -19,9 +40,14 @@ const Hero = () => {
         loop
         muted
         playsInline
-        style={{ filter: "brightness(0.6)" }}
+        style={{ 
+          filter: "brightness(0.6)",
+          ...(isMobile && { 
+            objectPosition: 'center top' // Position to show top of video on mobile
+          })
+        }}
       >
-        <source src="/videos/Website.mov" type="video/mp4" />
+        <source src={isMobile ? "/videos/mobile_movie.mov" : "/videos/Website.mov"} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 

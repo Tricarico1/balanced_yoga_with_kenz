@@ -1,8 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import SubscribeSection from "@/components/SubscribeSection";
+import MembershipSection from "@/components/MembershipSection";
 import AboutSection from "@/components/AboutSection";
-import GallerySection from "@/components/GallerySection";
+import ExperienceSection from "@/components/ExperienceSection";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -11,8 +12,9 @@ export default function Home() {
       <Navbar />
       <Hero />
       <SubscribeSection />
+      <MembershipSection />
       <AboutSection />
-      <GallerySection />
+      <ExperienceSection />
       <Footer />
     </main>
   );

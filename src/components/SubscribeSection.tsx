@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ImageSlider from "./ImageSlider";
 
 const SubscribeSection = () => {
   return (
@@ -32,20 +33,36 @@ const SubscribeSection = () => {
               </p>
             </div>
             
-            {/* Placeholder for In-Person Yoga image/video */}
-            <div className="w-full h-64 lg:h-80 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#000000', border: '2px solid #FF69B4' }}>
-              <p className="text-white text-center">Image/Video Placeholder</p>
-            </div>
+            {/* In-Person Yoga Image Slider */}
+            <ImageSlider
+              images={[
+                "/images/In-person/Image 1.png",
+                "/images/In-person/Image 2.png",
+                "/images/In-person/Image 3.png",
+                "/images/In-person/Image 4.png",
+                "/images/In-person/Image 5.png",
+                "/images/In-person/Image 6.png",
+                "/images/In-person/Image 7.png"
+              ]}
+              alt="In-Person Yoga"
+              height="h-80 lg:h-96"
+              objectFit="cover"
+              objectPosition="center"
+            />
           </div>
         </div>
 
         {/* Blossom Yoga Studio Section */}
         <div className="mb-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            {/* Placeholder for Blossom Yoga Studio image/video */}
-            <div className="w-full h-64 lg:h-80 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#000000' }}>
-              <p className="text-white text-center">Image/Video Placeholder</p>
-            </div>
+            {/* Blossom Yoga Studio Image Slider */}
+            <ImageSlider
+              images={[
+                "/images/yoga_offering/Image 1.webp",
+                "/images/yoga_offering/Image 2.jpg"
+              ]}
+              alt="Blossom Yoga Studio"
+            />
             
             <div className="space-y-4">
               <h3 className="text-2xl font-medium uppercase mb-2" style={{ color: '#153F55' }}>
@@ -59,7 +76,7 @@ const SubscribeSection = () => {
         </div>
 
         {/* Online Yoga Section */}
-        <div className="mb-16">
+        <div id="online-yoga" className="mb-16">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-medium uppercase mb-2" style={{ color: '#153F55' }}>
               Online Yoga
@@ -74,6 +91,7 @@ const SubscribeSection = () => {
           
           {/* YouTube Videos Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* First 2 videos - always visible */}
             <div 
               className="aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
               onClick={() => window.open('https://www.youtube.com/watch?v=sUu2Gf8fmd8', '_blank')}
@@ -102,8 +120,9 @@ const SubscribeSection = () => {
               ></iframe>
             </div>
             
+            {/* Videos 3-6 - hidden on mobile, visible on md+ */}
             <div 
-              className="aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
+              className="hidden md:block aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
               onClick={() => window.open('https://www.youtube.com/watch?v=rZcvvlKwwog', '_blank')}
             >
               <iframe
@@ -117,7 +136,7 @@ const SubscribeSection = () => {
             </div>
             
             <div 
-              className="aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
+              className="hidden md:block aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
               onClick={() => window.open('https://www.youtube.com/watch?v=uN7hpBBMVxw', '_blank')}
             >
               <iframe
@@ -131,7 +150,7 @@ const SubscribeSection = () => {
             </div>
             
             <div 
-              className="aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
+              className="hidden md:block aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
               onClick={() => window.open('https://www.youtube.com/watch?v=h3-nD9t3Hig', '_blank')}
             >
               <iframe
@@ -145,7 +164,7 @@ const SubscribeSection = () => {
             </div>
             
             <div 
-              className="aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
+              className="hidden md:block aspect-video bg-black rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-105"
               onClick={() => window.open('https://www.youtube.com/watch?v=mg_eFtaVTP4', '_blank')}
             >
               <iframe
@@ -159,6 +178,8 @@ const SubscribeSection = () => {
             </div>
           </div>
         </div>
+
+
       </div>
     </section>
   );
