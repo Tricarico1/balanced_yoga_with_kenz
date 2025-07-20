@@ -22,7 +22,8 @@ const ExperienceSection = () => {
               "/images/exp_left/Image 5 (1).png"
             ]}
             alt="Experience Left"
-            height="h-64"
+            className="aspect-square"
+            height="h-100"
             objectFit="cover"
             objectPosition="center"
           />
@@ -37,7 +38,8 @@ const ExperienceSection = () => {
               "/images/exp_right/Image 5 (2).png"
             ]}
             alt="Experience Right"
-            height="h-64"
+            className="aspect-square"
+            height="h-100"
             objectFit="cover"
             objectPosition="center"
           />
