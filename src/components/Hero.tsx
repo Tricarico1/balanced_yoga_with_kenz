@@ -1,28 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 const Hero = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkDevice = () => {
-      if (typeof window !== 'undefined') {
-        const mobile = window.innerWidth < 768;
-        setIsMobile(mobile);
-      }
-    };
-
-    // Check on mount
-    checkDevice();
-
-    // Check on resize
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', checkDevice);
-      return () => window.removeEventListener('resize', checkDevice);
-    }
-  }, []);
 
   const scrollToYogaOfferings = () => {
     const element = document.getElementById('yoga-offerings');
@@ -33,21 +13,33 @@ const Hero = () => {
 
   return (
     <section className="hero-section" style={{ backgroundColor: '#153F55' }}>
-      {/* Background Video with Overlay */}
+      {/* Desktop Background Video */}
       <video
-        className="absolute inset-0 w-full h-full object-cover"
+        className="hero-video-desktop absolute inset-0 w-full h-full"
         autoPlay
         loop
         muted
         playsInline
         style={{ 
-          filter: "brightness(0.6)",
-          ...(isMobile && { 
-            objectPosition: 'center center' // Center the 9:16 video properly
-          })
+          filter: "brightness(0.6)"
         }}
       >
-        <source src={isMobile ? "/videos/mobile_movie.webm" : "/videos/Website.webm"} type="video/webm" />
+        <source src="/videos/Website.webm" type="video/webm" />
+        Your browser does not support the video tag.
+      </video>
+
+      {/* Mobile Background Video */}
+      <video
+        className="hero-video-mobile absolute inset-0 w-full h-full"
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{ 
+          filter: "brightness(0.6)"
+        }}
+      >
+        <source src="/videos/mobile_movie.webm" type="video/webm" />
         Your browser does not support the video tag.
       </video>
 
