@@ -32,7 +32,7 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
 
       if (!response.ok) {
         console.error('API Error:', result);
-        throw new Error(result.error || 'Failed to send email');
+        throw new Error(result.error || 'Failed to process signup');
       }
 
       setSubmitStatus("success");
@@ -45,7 +45,7 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
       setTimeout(() => {
         onClose();
         setSubmitStatus("idle");
-      }, 2000);
+      }, 3000);
       
     } catch (error) {
       console.error('Email send error:', error);
@@ -125,7 +125,7 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
 
           {submitStatus === "success" && (
             <p className="text-green-600 text-sm text-center">
-              Thank you! We'll be in touch when the membership platform is ready.
+              Thank you! You've been successfully added to our membership waitlist. We'll notify you when the platform is ready!
             </p>
           )}
 

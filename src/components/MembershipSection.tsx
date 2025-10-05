@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ContactPopup from "./ContactPopup";
 
 const MembershipSection = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  // Auto-open popup after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPopupOpen(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <section id="membership" className="pt-8 pb-8" style={{ backgroundColor: '#92A07F' }}>
       <div className="container-custom">
@@ -23,8 +32,8 @@ const MembershipSection = () => {
               No membership platform yet! But that is the goal as I grow and discover more yogis that want to join the journey. Please click{" "}
               <button 
                 onClick={() => setIsPopupOpen(true)}
-                className="underline hover:opacity-80 transition-opacity cursor-pointer"
-                style={{ color: '#F2E8DE' }}
+                className="inline-block px-3 py-1 text-sm font-medium rounded-md border-2 border-current hover:bg-white hover:bg-opacity-20 transition-all duration-200 cursor-pointer"
+                style={{ color: '#F2E8DE', borderColor: '#F2E8DE' }}
               >
                 here
               </button>
