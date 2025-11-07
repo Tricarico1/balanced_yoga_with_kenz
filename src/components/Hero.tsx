@@ -20,6 +20,7 @@ const Hero = () => {
         loop
         muted
         playsInline
+        suppressHydrationWarning
         style={{ 
           filter: "brightness(0.6)"
         }}
@@ -35,6 +36,7 @@ const Hero = () => {
         loop
         muted
         playsInline
+        suppressHydrationWarning
         style={{ 
           filter: "brightness(0.6)"
         }}
