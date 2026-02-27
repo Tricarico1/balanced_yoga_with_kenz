@@ -194,6 +194,15 @@ const Navbar = () => {
             </div>
           </div>
 
+          {/* Blog */}
+          <Link
+            href="/blog"
+            className="nav-link transition-colors duration-300 hover:opacity-80"
+            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+          >
+            Blog
+          </Link>
+
           {/* Contact */}
           <button
             onClick={() => {
@@ -337,6 +346,16 @@ const Navbar = () => {
               )}
             </div>
 
+            {/* Blog Mobile */}
+            <Link
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className="nav-link text-right hover:opacity-80"
+              style={{ color: '#153F55' }}
+            >
+              Blog
+            </Link>
+
             {/* Contact Mobile */}
             <button
               onClick={() => {
@@ -349,11 +368,11 @@ const Navbar = () => {
                 }
                 setMobileMenuOpen(false);
               }}
-              className="nav-link text-right hover:opacity-80" 
+              className="nav-link text-right hover:opacity-80"
               style={{ color: '#153F55' }}
             >
               Contact
-          </button>
+            </button>
           </div>
         </div>
       )}

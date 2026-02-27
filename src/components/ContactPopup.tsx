@@ -10,6 +10,7 @@ interface ContactPopupProps {
 const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
 
@@ -25,7 +26,7 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name, email, newsletterOptIn }),
       });
 
       const result = await response.json();
@@ -60,23 +61,27 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-medium mb-2" style={{ color: '#153F55' }}>
-              Join the Membership Waitlist ❤️
-            </h3>
-            <p className="text-sm text-gray-600">
-              (Kenz is currently designing a membership platform to create a more intimate yoga experience for you! Enter your email to be notified when it's launched!)
-            </p>
-          </div>
+        <div className="flex justify-end mb-2">
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors ml-4"
+            className="text-gray-500 hover:text-gray-700 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+        </div>
+
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-medium mb-3" style={{ color: '#153F55' }}>
+            Join the Membership Waitlist
+          </h3>
+          <p className="text-sm text-gray-600">
+            Kenz is designing a membership platform to create a more intimate yoga experience for you.
+          </p>
+          <p className="text-sm text-gray-600 mt-1">
+            Enter your email to be notified when it's launched.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -108,6 +113,20 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="your.email@example.com"
             />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="newsletterOptIn"
+              checked={newsletterOptIn}
+              onChange={(e) => setNewsletterOptIn(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+              style={{ accentColor: '#153F55' }}
+            />
+            <label htmlFor="newsletterOptIn" className="text-sm text-gray-600 cursor-pointer">
+              Check here to sign up for the newsletter
+            </label>
           </div>
 
           <div className="flex space-x-3 pt-2">
