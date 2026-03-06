@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 
-const Navbar = () => {
+const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
   const [scrolled, setScrolled] = useState(false);
+  const isScrolled = forceScrolled || scrolled;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [yogaDropdownOpen, setYogaDropdownOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
@@ -64,18 +65,18 @@ const Navbar = () => {
   return (
     <nav
       className={`w-full fixed top-0 z-50 transition-all duration-300 ${
-        scrolled ? "shadow-sm" : "bg-transparent"
+        isScrolled ? "shadow-sm" : "bg-transparent"
       }`}
       style={{ 
-        backgroundColor: scrolled ? '#F2E8DE' : 'transparent',
-        borderBottom: scrolled ? '1px solid #BB7458' : 'none'
+        backgroundColor: isScrolled ? '#F2E8DE' : 'transparent',
+        borderBottom: isScrolled ? '1px solid #BB7458' : 'none'
       }}
     >
       <div className="container-custom flex justify-between items-center py-4">
         <Link 
           href="/" 
           className={`text-lg md:text-xl font-medium uppercase tracking-wider transition-colors duration-300`}
-          style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+          style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
         >
           Balanced Yoga with Kenz
         </Link>
@@ -89,7 +90,7 @@ const Navbar = () => {
               onMouseEnter={() => setYogaDropdownOpen(true)}
               onMouseLeave={() => setYogaDropdownOpen(false)}
               className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80 flex items-center"
-              style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+              style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
             >
               Yoga
               <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,7 +135,7 @@ const Navbar = () => {
               }
             }}
             className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80"
-            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+            style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
           >
             Membership
           </button>
@@ -146,7 +147,7 @@ const Navbar = () => {
               onMouseEnter={() => setAboutDropdownOpen(true)}
               onMouseLeave={() => setAboutDropdownOpen(false)}
               className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80 flex items-center"
-              style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+              style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
             >
               About
               <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +199,7 @@ const Navbar = () => {
           <Link
             href="/blog"
             className="nav-link transition-colors duration-300 hover:opacity-80"
-            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+            style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
           >
             Blog
           </Link>
@@ -215,7 +216,7 @@ const Navbar = () => {
               }
             }}
             className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80"
-            style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+            style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
           >
             Contact
           </button>
@@ -224,7 +225,7 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <button
           className="md:hidden transition-colors duration-300"
-          style={{ color: scrolled ? '#153F55' : '#F2E8DE' }}
+          style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">

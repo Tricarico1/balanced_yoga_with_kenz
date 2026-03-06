@@ -1,0 +1,282 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+
+function toSlug(title: string) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+
+function toEmbedUrl(shareUrl: string): string {
+  try {
+    const url = new URL(shareUrl)
+    if (!url.hostname.includes('canva.com')) return shareUrl
+    // Keep the full path (including the token), just replace query string with ?embed
+    return url.origin + url.pathname + '?embed'
+  } catch {
+    return shareUrl
+  }
+}
+
+const CATEGORIES = ['Inspiration', 'Practice', 'Wellness', 'General']
+
+export default function NewBlogPostPage() {
+  const router = useRouter()
+  const today = new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+
+  const [form, setForm] = useState({
+    title: '',
+    slug: '',
+    category: 'General',
+    excerpt: '',
+    date: today,
+    image_url: '',
+    canva_url: '',
+    design_width: '',
+    design_height: '',
+    secret: '',
+  })
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [error, setError] = useState('')
+
+  // Pre-fill password if coming from manage page
+  useEffect(() => {
+    const saved = sessionStorage.getItem('byk_admin_secret')
+    if (saved) setForm(f => ({ ...f, secret: saved }))
+  }, [])
+
+  function handleTitleChange(title: string) {
+    setForm(f => ({ ...f, title, slug: toSlug(title) }))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setStatus('loading')
+    setError('')
+
+    const canva_embed_url = form.canva_url ? toEmbedUrl(form.canva_url) : null
+
+    const res = await fetch('/api/admin/blog', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: form.title,
+        slug: form.slug,
+        category: form.category,
+        excerpt: form.excerpt,
+        date: form.date,
+        image_url: form.image_url || null,
+        canva_embed_url,
+        design_width: form.design_width ? parseInt(form.design_width) : null,
+        design_height: form.design_height ? parseInt(form.design_height) : null,
+        secret: form.secret,
+      }),
+    })
+
+    const data = await res.json()
+    if (res.ok) {
+      sessionStorage.setItem('byk_admin_secret', form.secret)
+      router.push('/admin/blog')
+    } else {
+      setStatus('error')
+      setError(data.error || 'Something went wrong')
+    }
+  }
+
+  const inputStyle = { borderColor: '#C4B5A8', color: '#153F55', backgroundColor: 'white' }
+  const inputClass = 'w-full px-3 py-2 rounded-lg border text-sm outline-none focus:ring-2 focus:ring-amber-300 transition-shadow'
+  const labelClass = 'block text-xs uppercase tracking-wider font-medium mb-1.5'
+
+  return (
+    <div className="min-h-screen pt-12 pb-16 px-4" style={{ backgroundColor: '#F2E8DE' }}>
+      <div className="max-w-xl mx-auto">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#92A07F' }}>Blog Admin</p>
+            <h1 className="text-2xl font-medium" style={{ color: '#153F55' }}>New Post</h1>
+          </div>
+          <Link
+            href="/admin/blog"
+            className="text-sm hover:opacity-70 transition-opacity"
+            style={{ color: '#486668' }}
+          >
+            ← All Posts
+          </Link>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Title + Slug */}
+          <div className="space-y-4 p-5 rounded-xl" style={{ backgroundColor: 'white', border: '1px solid #E8DDD5' }}>
+            <p className="text-xs uppercase tracking-widest font-medium" style={{ color: '#B97230' }}>Basics</p>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>Title</label>
+              <input
+                required
+                className={inputClass}
+                style={inputStyle}
+                value={form.title}
+                onChange={e => handleTitleChange(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>Slug</label>
+              <input
+                required
+                className={inputClass}
+                style={inputStyle}
+                value={form.slug}
+                onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
+              />
+              <p className="text-xs mt-1.5" style={{ color: '#92A07F' }}>
+                /blog/<span style={{ color: '#B97230' }}>{form.slug || 'your-post-title'}</span>
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass} style={{ color: '#486668' }}>Category</label>
+                <select
+                  className={inputClass}
+                  style={inputStyle}
+                  value={form.category}
+                  onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                >
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass} style={{ color: '#486668' }}>Date</label>
+                <input
+                  required
+                  className={inputClass}
+                  style={inputStyle}
+                  value={form.date}
+                  onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Excerpt */}
+          <div className="space-y-3 p-5 rounded-xl" style={{ backgroundColor: 'white', border: '1px solid #E8DDD5' }}>
+            <p className="text-xs uppercase tracking-widest font-medium" style={{ color: '#B97230' }}>Card Preview</p>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>
+                Excerpt <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— shown on the blog grid card</span>
+              </label>
+              <textarea
+                required
+                rows={3}
+                className={inputClass}
+                style={inputStyle}
+                value={form.excerpt}
+                onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>
+                Cover Image URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— optional thumbnail</span>
+              </label>
+              <input
+                className={inputClass}
+                style={inputStyle}
+                placeholder="https://..."
+                value={form.image_url}
+                onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          {/* Canva */}
+          <div className="space-y-4 p-5 rounded-xl" style={{ backgroundColor: 'white', border: '1px solid #E8DDD5' }}>
+            <p className="text-xs uppercase tracking-widest font-medium" style={{ color: '#B97230' }}>Content</p>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>
+                Canva Share Link <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— the full post body</span>
+              </label>
+              <input
+                className={inputClass}
+                style={inputStyle}
+                placeholder="https://www.canva.com/design/..."
+                value={form.canva_url}
+                onChange={e => setForm(f => ({ ...f, canva_url: e.target.value }))}
+              />
+              {form.canva_url && (
+                <p className="text-xs mt-1.5" style={{ color: '#92A07F' }}>
+                  Embed: {toEmbedUrl(form.canva_url)}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>
+                Design Dimensions <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— in Canva click Resize to see px size</span>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <input
+                    type="number"
+                    className={inputClass}
+                    style={inputStyle}
+                    placeholder="Width (e.g. 1920)"
+                    value={form.design_width}
+                    onChange={e => setForm(f => ({ ...f, design_width: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    className={inputClass}
+                    style={inputStyle}
+                    placeholder="Height (e.g. 3200)"
+                    value={form.design_height}
+                    onChange={e => setForm(f => ({ ...f, design_height: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className={labelClass} style={{ color: '#486668' }}>Admin Password</label>
+            <input
+              required
+              type="password"
+              className={inputClass}
+              style={inputStyle}
+              value={form.secret}
+              onChange={e => setForm(f => ({ ...f, secret: e.target.value }))}
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm px-4 py-3 rounded-lg" style={{ backgroundColor: '#FDF0E0', color: '#B97230', border: '1px solid #E8C99A' }}>
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={status === 'loading'}
+            className="w-full py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-opacity hover:opacity-85 disabled:opacity-50"
+            style={{ backgroundColor: '#153F55', color: 'white' }}
+          >
+            {status === 'loading' ? 'Publishing...' : 'Publish Post'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}

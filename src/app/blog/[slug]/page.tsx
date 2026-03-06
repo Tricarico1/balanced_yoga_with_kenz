@@ -1,15 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { blogPosts, getPostBySlug } from "@/lib/blog";
+import { getPostBySlug } from "@/lib/blog";
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
   return {
     title: `${post.title} — Balanced Yoga with Kenz`,
@@ -19,16 +17,49 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) notFound();
 
+  // Canva posts: aspect-ratio iframe — page scrolls naturally
+  if (post.canva_embed_url) {
+    const paddingTop = post.design_width && post.design_height
+      ? `${(post.design_height / post.design_width) * 100}%`
+      : '175%' // fallback: roughly 3x tall design
+
+    return (
+      <main>
+        <Navbar forceScrolled />
+        {/* paddingTop accounts for the fixed navbar */}
+        <div style={{ paddingTop: '60px' }}>
+          <div style={{ position: 'relative', width: '100%', paddingTop }}>
+            <iframe
+              src={post.canva_embed_url}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                display: 'block',
+              }}
+              allowFullScreen
+              allow="fullscreen"
+              title={post.title}
+            />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Text-only posts: standard layout
   return (
     <main>
       <Navbar />
       <div className="pt-24 pb-16 min-h-screen" style={{ backgroundColor: "#F2E8DE" }}>
         <div className="container-custom max-w-3xl">
-          {/* Back link */}
           <Link
             href="/blog"
             className="inline-flex items-center text-sm mb-10 hover:opacity-70 transition-opacity"
@@ -37,63 +68,38 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             ← Back to Blog
           </Link>
 
-          {/* Category + date */}
           <div className="flex items-center gap-3 mb-4">
-            <span
-              className="text-xs uppercase tracking-wider font-medium"
-              style={{ color: "#B97230" }}
-            >
+            <span className="text-xs uppercase tracking-wider font-medium" style={{ color: "#B97230" }}>
               {post.category}
             </span>
-            <span className="text-xs" style={{ color: "#92A07F" }}>
-              {post.date}
-            </span>
+            <span className="text-xs" style={{ color: "#92A07F" }}>{post.date}</span>
           </div>
 
-          {/* Title */}
-          <h1
-            className="text-3xl md:text-4xl font-medium mb-8 leading-tight"
-            style={{ color: "#153F55" }}
-          >
+          <h1 className="text-3xl md:text-4xl font-medium mb-8 leading-tight" style={{ color: "#153F55" }}>
             {post.title}
           </h1>
 
-          {/* Hero image */}
-          {post.image && (
+          {post.image_url && (
             <div className="w-full h-72 md:h-96 rounded-lg overflow-hidden mb-10">
-              <img
-                src={post.image}
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
+              <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
             </div>
           )}
 
-          {/* Content */}
           <div className="space-y-5">
-            {post.content.map((paragraph, i) => (
+            {(post.content || []).map((paragraph, i) => (
               <p
                 key={i}
                 className="leading-relaxed"
                 style={{ color: "#3D5019" }}
                 dangerouslySetInnerHTML={{
-                  __html: paragraph
-                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#153F55">$1</strong>'),
+                  __html: paragraph.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#153F55">$1</strong>'),
                 }}
               />
             ))}
           </div>
 
-          {/* Divider + back */}
-          <div
-            className="mt-14 pt-8 border-t"
-            style={{ borderColor: "#C4B5A8" }}
-          >
-            <Link
-              href="/blog"
-              className="text-sm hover:opacity-70 transition-opacity"
-              style={{ color: "#486668" }}
-            >
+          <div className="mt-14 pt-8 border-t" style={{ borderColor: "#C4B5A8" }}>
+            <Link href="/blog" className="text-sm hover:opacity-70 transition-opacity" style={{ color: "#486668" }}>
               ← Back to Blog
             </Link>
           </div>
