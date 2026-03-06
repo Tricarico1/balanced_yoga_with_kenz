@@ -14,21 +14,12 @@ export default async function BlogPage() {
 
   return (
     <main>
-      <Navbar />
-      <div className="pt-24 pb-16 min-h-screen" style={{ backgroundColor: "#F2E8DE" }}>
-        <div className="container-custom">
-          <h1
-            className="text-3xl md:text-4xl lg:text-5xl uppercase font-medium text-center mb-4"
-            style={{ color: "#153F55" }}
-          >
-            Blog
-          </h1>
-          <p
-            className="text-center max-w-2xl mx-auto mb-14 leading-relaxed"
-            style={{ color: "#486668" }}
-          >
-            Stories, practice tips, and reflections from life on and off the mat.
-          </p>
+      <Navbar forceScrolled />
+
+      <div className="pb-16 min-h-screen" style={{ backgroundColor: "#F2E8DE" }}>
+        <div className="container-custom pt-28">
+          <h1 className="text-3xl md:text-4xl font-medium mb-2" style={{ color: "#153F55" }}>The Blog</h1>
+          <p className="text-sm mb-12" style={{ color: "#92A07F" }}>Stories, practice tips, and reflections from life on and off the mat.</p>
 
           {posts.length === 0 ? (
             <p className="text-center" style={{ color: "#486668" }}>
@@ -89,3 +80,4 @@ export default async function BlogPage() {
     </main>
   );
 }
+

@@ -23,32 +23,40 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   // Canva posts: aspect-ratio iframe — page scrolls naturally
   if (post.canva_embed_url) {
-    const paddingTop = post.design_width && post.design_height
-      ? `${(post.design_height / post.design_width) * 100}%`
-      : '175%' // fallback: roughly 3x tall design
+    // When dimensions are known, use aspect-ratio container so Canva renders at natural scale.
+    // When unknown (multi-page / slideshow designs), fall back to full-viewport iframe.
+    const hasDimensions = post.design_width && post.design_height
+    const paddingTop = hasDimensions
+      ? `${(post.design_height! / post.design_width!) * 100}%`
+      : null
 
     return (
       <main>
         <Navbar forceScrolled />
-        {/* paddingTop accounts for the fixed navbar */}
         <div style={{ paddingTop: '60px' }}>
-          <div style={{ position: 'relative', width: '100%', paddingTop }}>
+          {hasDimensions ? (
+            // Single tall page: aspect-ratio container — page scrolls naturally
+            <div style={{ overflowX: 'auto' }}>
+              <div style={{ position: 'relative', width: '100%', minWidth: '768px', paddingTop: paddingTop! }}>
+                <iframe
+                  src={post.canva_embed_url}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', display: 'block' }}
+                  allowFullScreen
+                  allow="fullscreen"
+                  title={post.title}
+                />
+              </div>
+            </div>
+          ) : (
+            // No dimensions (e.g. slideshow/multi-page): fill viewport height
             <iframe
               src={post.canva_embed_url}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                border: 'none',
-                display: 'block',
-              }}
+              style={{ display: 'block', width: '100%', height: 'calc(100vh - 60px)', border: 'none' }}
               allowFullScreen
               allow="fullscreen"
               title={post.title}
             />
-          </div>
+          )}
         </div>
       </main>
     );
