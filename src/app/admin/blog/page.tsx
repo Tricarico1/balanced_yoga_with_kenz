@@ -3,17 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 
-function toEmbedUrl(shareUrl: string): string {
-  try {
-    const url = new URL(shareUrl)
-    if (!url.hostname.includes('canva.com')) return shareUrl
-    // Keep the full path (including the token), just replace query string with ?embed
-    return url.origin + url.pathname + '?embed'
-  } catch {
-    return shareUrl
-  }
-}
-
 function toSlug(title: string) {
   return title
     .toLowerCase()
@@ -33,9 +22,7 @@ type Post = {
   category: string
   excerpt: string
   image_url: string | null
-  canva_embed_url: string | null
-  design_width: number | null
-  design_height: number | null
+  canva_site_url: string | null
   published: boolean
 }
 
@@ -46,9 +33,7 @@ type EditForm = {
   excerpt: string
   date: string
   image_url: string
-  canva_url: string
-  design_width: string
-  design_height: string
+  canva_site_url: string
 }
 
 export default function AdminManagePage() {
@@ -114,9 +99,7 @@ export default function AdminManagePage() {
       excerpt: post.excerpt,
       date: post.date,
       image_url: post.image_url || '',
-      canva_url: post.canva_embed_url || '',
-      design_width: post.design_width?.toString() || '',
-      design_height: post.design_height?.toString() || '',
+      canva_site_url: post.canva_site_url || '',
     })
   }
 
@@ -131,8 +114,6 @@ export default function AdminManagePage() {
     setSaving(true)
     setSaveError('')
 
-    const canva_embed_url = editForm.canva_url ? toEmbedUrl(editForm.canva_url) : null
-
     const res = await fetch('/api/admin/blog', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -145,9 +126,7 @@ export default function AdminManagePage() {
         excerpt: editForm.excerpt,
         date: editForm.date,
         image_url: editForm.image_url || null,
-        canva_embed_url,
-        design_width: editForm.design_width ? parseInt(editForm.design_width) : null,
-        design_height: editForm.design_height ? parseInt(editForm.design_height) : null,
+        canva_site_url: editForm.canva_site_url || null,
       }),
     })
 
@@ -171,9 +150,7 @@ export default function AdminManagePage() {
               excerpt: editForm.excerpt,
               date: editForm.date,
               image_url: editForm.image_url || null,
-              canva_embed_url,
-              design_width: editForm.design_width ? parseInt(editForm.design_width) : null,
-              design_height: editForm.design_height ? parseInt(editForm.design_height) : null,
+              canva_site_url: editForm.canva_site_url || null,
             }
           : p
       )
@@ -379,40 +356,18 @@ export default function AdminManagePage() {
 
                     <div>
                       <label className={labelClass} style={{ color: '#486668' }}>
-                        Canva URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— share link or embed URL</span>
+                        Canva Site URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— https://you.my.canva.site/… (best, works on mobile)</span>
                       </label>
                       <input
                         className={inputClass}
                         style={inputStyle}
-                        placeholder="https://www.canva.com/design/..."
-                        value={editForm.canva_url}
-                        onChange={e => setEditForm(f => f ? { ...f, canva_url: e.target.value } : f)}
+                        placeholder="https://yourname.my.canva.site/..."
+                        value={editForm.canva_site_url}
+                        onChange={e => setEditForm(f => f ? { ...f, canva_site_url: e.target.value } : f)}
                       />
                     </div>
 
-                    <div>
-                      <label className={labelClass} style={{ color: '#486668' }}>
-                        Design Dimensions <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— px (check Resize in Canva)</span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <input
-                          type="number"
-                          className={inputClass}
-                          style={inputStyle}
-                          placeholder="Width (e.g. 1920)"
-                          value={editForm.design_width}
-                          onChange={e => setEditForm(f => f ? { ...f, design_width: e.target.value } : f)}
-                        />
-                        <input
-                          type="number"
-                          className={inputClass}
-                          style={inputStyle}
-                          placeholder="Height (e.g. 3200)"
-                          value={editForm.design_height}
-                          onChange={e => setEditForm(f => f ? { ...f, design_height: e.target.value } : f)}
-                        />
-                      </div>
-                    </div>
+
                   </div>
 
                   {saveError && (

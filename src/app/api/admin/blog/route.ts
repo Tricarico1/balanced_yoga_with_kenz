@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { title, slug, category, excerpt, date, image_url, canva_embed_url, design_width, design_height, secret } = body
+  const { title, slug, category, excerpt, date, image_url, canva_site_url, canva_embed_url, design_width, design_height, canva_embed_url_mobile, mobile_design_width, mobile_design_height, secret } = body
 
   if (!checkSecret(secret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -45,9 +45,13 @@ export async function POST(req: NextRequest) {
       excerpt,
       date,
       image_url: image_url || null,
+      canva_site_url: canva_site_url || null,
       canva_embed_url: canva_embed_url || null,
       design_width: design_width || null,
       design_height: design_height || null,
+      canva_embed_url_mobile: canva_embed_url_mobile || null,
+      mobile_design_width: mobile_design_width || null,
+      mobile_design_height: mobile_design_height || null,
       content: [],
       published: true,
     })
@@ -64,7 +68,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   const body = await req.json()
-  const { secret, id, title, slug, category, excerpt, date, image_url, canva_embed_url, design_width, design_height } = body
+  const { secret, id, title, slug, category, excerpt, date, image_url, canva_site_url, canva_embed_url, design_width, design_height, canva_embed_url_mobile, mobile_design_width, mobile_design_height } = body
 
   if (!checkSecret(secret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -83,9 +87,13 @@ export async function PUT(req: NextRequest) {
       excerpt,
       date,
       image_url: image_url || null,
+      canva_site_url: canva_site_url || null,
       canva_embed_url: canva_embed_url || null,
       design_width: design_width || null,
       design_height: design_height || null,
+      canva_embed_url_mobile: canva_embed_url_mobile || null,
+      mobile_design_width: mobile_design_width || null,
+      mobile_design_height: mobile_design_height || null,
     })
     .eq('id', id)
 

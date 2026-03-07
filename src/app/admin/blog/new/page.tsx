@@ -13,17 +13,6 @@ function toSlug(title: string) {
     .trim()
 }
 
-function toEmbedUrl(shareUrl: string): string {
-  try {
-    const url = new URL(shareUrl)
-    if (!url.hostname.includes('canva.com')) return shareUrl
-    // Keep the full path (including the token), just replace query string with ?embed
-    return url.origin + url.pathname + '?embed'
-  } catch {
-    return shareUrl
-  }
-}
-
 const CATEGORIES = ['Inspiration', 'Practice', 'Wellness', 'General']
 
 export default function NewBlogPostPage() {
@@ -41,9 +30,7 @@ export default function NewBlogPostPage() {
     excerpt: '',
     date: today,
     image_url: '',
-    canva_url: '',
-    design_width: '',
-    design_height: '',
+    canva_site_url: '',
     secret: '',
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -64,8 +51,6 @@ export default function NewBlogPostPage() {
     setStatus('loading')
     setError('')
 
-    const canva_embed_url = form.canva_url ? toEmbedUrl(form.canva_url) : null
-
     const res = await fetch('/api/admin/blog', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -76,9 +61,7 @@ export default function NewBlogPostPage() {
         excerpt: form.excerpt,
         date: form.date,
         image_url: form.image_url || null,
-        canva_embed_url,
-        design_width: form.design_width ? parseInt(form.design_width) : null,
-        design_height: form.design_height ? parseInt(form.design_height) : null,
+        canva_site_url: form.canva_site_url || null,
         secret: form.secret,
       }),
     })
@@ -204,47 +187,15 @@ export default function NewBlogPostPage() {
             <p className="text-xs uppercase tracking-widest font-medium" style={{ color: '#B97230' }}>Content</p>
             <div>
               <label className={labelClass} style={{ color: '#486668' }}>
-                Canva Share Link <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— the full post body</span>
+                Canva Site URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— https://you.my.canva.site/… (best, works on mobile)</span>
               </label>
               <input
                 className={inputClass}
                 style={inputStyle}
-                placeholder="https://www.canva.com/design/..."
-                value={form.canva_url}
-                onChange={e => setForm(f => ({ ...f, canva_url: e.target.value }))}
+                placeholder="https://yourname.my.canva.site/..."
+                value={form.canva_site_url}
+                onChange={e => setForm(f => ({ ...f, canva_site_url: e.target.value }))}
               />
-              {form.canva_url && (
-                <p className="text-xs mt-1.5" style={{ color: '#92A07F' }}>
-                  Embed: {toEmbedUrl(form.canva_url)}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className={labelClass} style={{ color: '#486668' }}>
-                Design Dimensions <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— in Canva click Resize to see px size</span>
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <input
-                    type="number"
-                    className={inputClass}
-                    style={inputStyle}
-                    placeholder="Width (e.g. 1920)"
-                    value={form.design_width}
-                    onChange={e => setForm(f => ({ ...f, design_width: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <input
-                    type="number"
-                    className={inputClass}
-                    style={inputStyle}
-                    placeholder="Height (e.g. 3200)"
-                    value={form.design_height}
-                    onChange={e => setForm(f => ({ ...f, design_height: e.target.value }))}
-                  />
-                </div>
-              </div>
             </div>
           </div>
 

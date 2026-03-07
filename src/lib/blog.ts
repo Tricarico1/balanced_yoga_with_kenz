@@ -9,9 +9,13 @@ export type BlogPost = {
   excerpt: string
   content: string[]
   image_url?: string
+  canva_site_url?: string
   canva_embed_url?: string
   design_width?: number
   design_height?: number
+  canva_embed_url_mobile?: string
+  mobile_design_width?: number
+  mobile_design_height?: number
   published: boolean
 }
 

@@ -21,34 +21,33 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post) notFound();
 
-  // Canva posts: aspect-ratio iframe — page scrolls naturally
-  if (post.canva_embed_url) {
-    // When dimensions are known, use aspect-ratio container so Canva renders at natural scale.
-    // When unknown (multi-page / slideshow designs), fall back to full-viewport iframe.
-    const hasDimensions = post.design_width && post.design_height
-    const paddingTop = hasDimensions
-      ? `${(post.design_height! / post.design_width!) * 100}%`
-      : null
-
+  // Canva site URL: proxy it so it's same-origin embeddable, fully responsive
+  if (post.canva_site_url) {
+    const proxyUrl = `/api/canva-proxy?url=${encodeURIComponent(post.canva_site_url)}`
     return (
-      <main>
+      <main style={{ height: '100vh', overflow: 'hidden' }}>
         <Navbar forceScrolled />
-        <div style={{ paddingTop: '60px' }}>
-          {hasDimensions ? (
-            // Single tall page: aspect-ratio container — page scrolls naturally
-            <div style={{ overflowX: 'auto' }}>
-              <div style={{ position: 'relative', width: '100%', minWidth: '768px', paddingTop: paddingTop! }}>
-                <iframe
-                  src={post.canva_embed_url}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', display: 'block' }}
-                  allowFullScreen
-                  allow="fullscreen"
-                  title={post.title}
-                />
-              </div>
-            </div>
-          ) : (
-            // No dimensions (e.g. slideshow/multi-page): fill viewport height
+        <iframe
+          src={proxyUrl}
+          style={{ display: 'block', width: '100%', height: 'calc(100vh - 60px)', marginTop: '60px', border: 'none' }}
+          title={post.title}
+        />
+      </main>
+    )
+  }
+
+  // Canva embed URL: aspect-ratio iframe — page scrolls naturally
+  if (post.canva_embed_url) {
+    const hasDimensions = post.design_width && post.design_height
+    const hasMobileEmbed = !!post.canva_embed_url_mobile
+    const hasMobileDimensions = post.mobile_design_width && post.mobile_design_height
+
+    if (!hasDimensions) {
+      // No dimensions: fill viewport height
+      return (
+        <main>
+          <Navbar forceScrolled />
+          <div style={{ paddingTop: '60px' }}>
             <iframe
               src={post.canva_embed_url}
               style={{ display: 'block', width: '100%', height: 'calc(100vh - 60px)', border: 'none' }}
@@ -56,10 +55,65 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               allow="fullscreen"
               title={post.title}
             />
-          )}
+          </div>
+        </main>
+      )
+    }
+
+    const desktopPaddingTop = `${(post.design_height! / post.design_width!) * 100}%`
+    const mobilePaddingTop = hasMobileDimensions
+      ? `${(post.mobile_design_height! / post.mobile_design_width!) * 100}%`
+      : desktopPaddingTop
+
+    // If there's a separate mobile embed URL, show each iframe only on its target screen size
+    if (hasMobileEmbed) {
+      return (
+        <main>
+          <Navbar forceScrolled />
+          <div style={{ paddingTop: '60px' }}>
+            <style>{`
+              .canva-desktop { display: block; }
+              .canva-mobile  { display: none; }
+              @media (max-width: 767px) {
+                .canva-desktop { display: none; }
+                .canva-mobile  { display: block; }
+              }
+              .canva-wrap { position: relative; width: 100%; }
+              .canva-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: block; }
+            `}</style>
+
+            <div className="canva-desktop">
+              <div className="canva-wrap" style={{ paddingTop: desktopPaddingTop }}>
+                <iframe src={post.canva_embed_url} allowFullScreen allow="fullscreen" title={post.title} />
+              </div>
+            </div>
+
+            <div className="canva-mobile">
+              <div className="canva-wrap" style={{ paddingTop: mobilePaddingTop }}>
+                <iframe src={post.canva_embed_url_mobile} allowFullScreen allow="fullscreen" title={post.title} />
+              </div>
+            </div>
+          </div>
+        </main>
+      )
+    }
+
+    return (
+      <main>
+        <Navbar forceScrolled />
+        <div style={{ paddingTop: '60px' }}>
+          <div style={{ position: 'relative', width: '100%', paddingTop: desktopPaddingTop }}>
+            <iframe
+              src={post.canva_embed_url}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', display: 'block' }}
+              allowFullScreen
+              allow="fullscreen"
+              title={post.title}
+            />
+          </div>
         </div>
       </main>
-    );
+    )
   }
 
   // Text-only posts: standard layout

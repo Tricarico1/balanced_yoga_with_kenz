@@ -1,3 +1,7 @@
+-- Migration: add mobile embed URL column to blog_posts
+-- Run this in Supabase SQL editor if the column doesn't exist yet:
+-- ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS canva_embed_url_mobile TEXT;
+
 -- Create the membership_signups table
 CREATE TABLE membership_signups (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
