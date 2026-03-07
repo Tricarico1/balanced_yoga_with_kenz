@@ -50,7 +50,8 @@ export default function AdminManagePage() {
 
   const [deleting, setDeleting] = useState<string | null>(null)
   const [thumbStatus, setThumbStatus] = useState<'idle' | 'detecting' | 'found' | 'none'>('idle')
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadPosts = useCallback(async (s: string) => {
     setLoading(true)
@@ -95,6 +96,7 @@ export default function AdminManagePage() {
     setEditingId(post.id)
     setSaveError('')
     setThumbStatus('idle')
+    setUploadStatus('idle')
     setEditForm({
       title: post.title,
       slug: post.slug,
@@ -111,29 +113,45 @@ export default function AdminManagePage() {
     setEditForm(null)
     setSaveError('')
     setThumbStatus('idle')
+    setUploadStatus('idle')
   }
 
-  function detectThumbnail() {
+  async function detectThumbnail() {
     if (!editForm?.canva_site_url) return
     setThumbStatus('detecting')
-  }
-
-  function handleIframeLoad() {
-    setTimeout(() => {
-      try {
-        const doc = iframeRef.current?.contentDocument
-        if (!doc) { setThumbStatus('none'); return }
-        const img = Array.from(doc.querySelectorAll('img')).find(i => i.src?.includes('_assets/media'))
-        if (img) {
-          setEditForm(f => f ? { ...f, image_url: img.src } : f)
-          setThumbStatus('found')
-        } else {
-          setThumbStatus('none')
-        }
-      } catch {
+    try {
+      const res = await fetch(`/api/admin/blog-thumbnail?url=${encodeURIComponent(editForm.canva_site_url)}`)
+      const data = await res.json()
+      if (data.found && data.imageUrl) {
+        setEditForm(f => f ? { ...f, image_url: data.imageUrl } : f)
+        setThumbStatus('found')
+      } else {
         setThumbStatus('none')
       }
-    }, 4000)
+    } catch {
+      setThumbStatus('none')
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadStatus('uploading')
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('secret', secret)
+    try {
+      const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        setEditForm(f => f ? { ...f, image_url: data.url } : f)
+        setUploadStatus('done')
+      } else {
+        setUploadStatus('error')
+      }
+    } catch {
+      setUploadStatus('error')
+    }
   }
 
   async function saveEdit(post: Post) {
@@ -359,14 +377,46 @@ export default function AdminManagePage() {
                         </select>
                       </div>
                       <div>
-                        <label className={labelClass} style={{ color: '#486668' }}>Cover Image URL</label>
+                        <label className={labelClass} style={{ color: '#486668' }}>Cover Image</label>
                         <input
                           className={inputClass}
                           style={inputStyle}
-                          placeholder="https://..."
+                          placeholder="https://... (paste a URL)"
                           value={editForm.image_url}
                           onChange={e => setEditForm(f => f ? { ...f, image_url: e.target.value } : f)}
                         />
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadStatus === 'uploading'}
+                            className="text-xs px-3 py-1.5 rounded-lg border hover:opacity-70 transition-opacity disabled:opacity-40"
+                            style={{ borderColor: '#C4B5A8', color: '#486668' }}
+                          >
+                            {uploadStatus === 'uploading' ? 'Uploading…' : 'Upload from desktop'}
+                          </button>
+                          {uploadStatus === 'done' && (
+                            <span className="text-xs" style={{ color: '#92A07F' }}>Uploaded ✓</span>
+                          )}
+                          {uploadStatus === 'error' && (
+                            <span className="text-xs" style={{ color: '#B97230' }}>Upload failed</span>
+                          )}
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                          />
+                        </div>
+                        {editForm.image_url && (
+                          <img
+                            src={editForm.image_url}
+                            alt="preview"
+                            className="mt-2 w-24 h-24 object-cover rounded-lg"
+                            style={{ border: '1px solid #E8DDD5' }}
+                          />
+                        )}
                       </div>
                     </div>
 
@@ -395,40 +445,26 @@ export default function AdminManagePage() {
                           setThumbStatus('idle')
                         }}
                       />
-                      {editForm.canva_site_url && thumbStatus === 'idle' && (
+                      {editForm.canva_site_url && (thumbStatus === 'idle' || thumbStatus === 'none') && (
                         <button
                           type="button"
                           onClick={detectThumbnail}
                           className="mt-2 text-xs px-3 py-1.5 rounded-lg border hover:opacity-70 transition-opacity"
                           style={{ borderColor: '#C4B5A8', color: '#486668' }}
                         >
-                          Auto-detect thumbnail
+                          {thumbStatus === 'none' ? 'Retry auto-detect' : 'Auto-detect thumbnail'}
                         </button>
                       )}
                       {thumbStatus === 'detecting' && (
-                        <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Detecting thumbnail… (takes ~4 seconds)</p>
+                        <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Detecting thumbnail…</p>
                       )}
-                      {thumbStatus === 'found' && editForm.image_url && (
-                        <div className="mt-2 flex items-center gap-3">
-                          <img src={editForm.image_url} alt="thumbnail" className="w-16 h-16 object-cover rounded-lg" style={{ border: '1px solid #E8DDD5' }} />
-                          <p className="text-xs" style={{ color: '#92A07F' }}>Thumbnail auto-detected ✓</p>
-                        </div>
+                      {thumbStatus === 'found' && (
+                        <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Thumbnail auto-detected ✓</p>
                       )}
                       {thumbStatus === 'none' && (
-                        <p className="text-xs mt-2" style={{ color: '#B97230' }}>No image found — enter a URL manually in Cover Image URL</p>
+                        <p className="text-xs mt-2" style={{ color: '#B97230' }}>No image found — upload one or paste a URL in Cover Image above</p>
                       )}
                     </div>
-
-                    {/* Hidden iframe for thumbnail detection */}
-                    {thumbStatus === 'detecting' && editForm.canva_site_url && (
-                      <iframe
-                        ref={iframeRef}
-                        src={`/api/canva-proxy?url=${encodeURIComponent(editForm.canva_site_url)}`}
-                        style={{ display: 'none' }}
-                        onLoad={handleIframeLoad}
-                      />
-                    )}
-
 
                   </div>
 

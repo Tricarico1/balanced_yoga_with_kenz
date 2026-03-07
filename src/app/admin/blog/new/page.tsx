@@ -36,7 +36,8 @@ export default function NewBlogPostPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [error, setError] = useState('')
   const [thumbStatus, setThumbStatus] = useState<'idle' | 'detecting' | 'found' | 'none'>('idle')
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Pre-fill password if coming from manage page
   useEffect(() => {
@@ -44,27 +45,46 @@ export default function NewBlogPostPage() {
     if (saved) setForm(f => ({ ...f, secret: saved }))
   }, [])
 
-  function detectThumbnail() {
+  async function detectThumbnail() {
     if (!form.canva_site_url) return
     setThumbStatus('detecting')
-  }
-
-  function handleIframeLoad() {
-    setTimeout(() => {
-      try {
-        const doc = iframeRef.current?.contentDocument
-        if (!doc) { setThumbStatus('none'); return }
-        const img = Array.from(doc.querySelectorAll('img')).find(i => i.src?.includes('_assets/media'))
-        if (img) {
-          setForm(f => ({ ...f, image_url: img.src }))
-          setThumbStatus('found')
-        } else {
-          setThumbStatus('none')
-        }
-      } catch {
+    try {
+      const res = await fetch(`/api/admin/blog-thumbnail?url=${encodeURIComponent(form.canva_site_url)}`)
+      const data = await res.json()
+      if (data.found && data.imageUrl) {
+        setForm(f => ({ ...f, image_url: data.imageUrl }))
+        setThumbStatus('found')
+      } else {
         setThumbStatus('none')
       }
-    }, 4000)
+    } catch {
+      setThumbStatus('none')
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!form.secret) {
+      alert('Enter your admin password first')
+      return
+    }
+    setUploadStatus('uploading')
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('secret', form.secret)
+    try {
+      const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        setForm(f => ({ ...f, image_url: data.url }))
+        setUploadStatus('done')
+      } else {
+        setUploadStatus('error')
+      }
+    } catch {
+      setUploadStatus('error')
+    }
   }
 
   function handleTitleChange(title: string) {
@@ -195,15 +215,47 @@ export default function NewBlogPostPage() {
             </div>
             <div>
               <label className={labelClass} style={{ color: '#486668' }}>
-                Cover Image URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— optional thumbnail</span>
+                Cover Image <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— optional thumbnail</span>
               </label>
               <input
                 className={inputClass}
                 style={inputStyle}
-                placeholder="https://..."
+                placeholder="https://... (paste a URL)"
                 value={form.image_url}
                 onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
               />
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadStatus === 'uploading'}
+                  className="text-xs px-3 py-1.5 rounded-lg border hover:opacity-70 transition-opacity disabled:opacity-40"
+                  style={{ borderColor: '#C4B5A8', color: '#486668' }}
+                >
+                  {uploadStatus === 'uploading' ? 'Uploading…' : 'Upload from desktop'}
+                </button>
+                {uploadStatus === 'done' && (
+                  <span className="text-xs" style={{ color: '#92A07F' }}>Uploaded ✓</span>
+                )}
+                {uploadStatus === 'error' && (
+                  <span className="text-xs" style={{ color: '#B97230' }}>Upload failed</span>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </div>
+              {form.image_url && (
+                <img
+                  src={form.image_url}
+                  alt="preview"
+                  className="mt-2 w-24 h-24 object-cover rounded-lg"
+                  style={{ border: '1px solid #E8DDD5' }}
+                />
+              )}
             </div>
           </div>
 
@@ -224,40 +276,27 @@ export default function NewBlogPostPage() {
                   setThumbStatus('idle')
                 }}
               />
-              {form.canva_site_url && thumbStatus === 'idle' && (
+              {form.canva_site_url && (thumbStatus === 'idle' || thumbStatus === 'none') && (
                 <button
                   type="button"
                   onClick={detectThumbnail}
                   className="mt-2 text-xs px-3 py-1.5 rounded-lg border hover:opacity-70 transition-opacity"
                   style={{ borderColor: '#C4B5A8', color: '#486668' }}
                 >
-                  Auto-detect thumbnail
+                  {thumbStatus === 'none' ? 'Retry auto-detect' : 'Auto-detect thumbnail'}
                 </button>
               )}
               {thumbStatus === 'detecting' && (
-                <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Detecting thumbnail… (takes ~4 seconds)</p>
+                <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Detecting thumbnail…</p>
               )}
-              {thumbStatus === 'found' && form.image_url && (
-                <div className="mt-2 flex items-center gap-3">
-                  <img src={form.image_url} alt="thumbnail" className="w-16 h-16 object-cover rounded-lg" style={{ border: '1px solid #E8DDD5' }} />
-                  <p className="text-xs" style={{ color: '#92A07F' }}>Thumbnail auto-detected ✓</p>
-                </div>
+              {thumbStatus === 'found' && (
+                <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Thumbnail auto-detected ✓</p>
               )}
               {thumbStatus === 'none' && (
-                <p className="text-xs mt-2" style={{ color: '#B97230' }}>No image found — enter a URL manually above</p>
+                <p className="text-xs mt-2" style={{ color: '#B97230' }}>No image found — upload one or paste a URL in Cover Image above</p>
               )}
             </div>
           </div>
-
-          {/* Hidden iframe for thumbnail detection */}
-          {thumbStatus === 'detecting' && (
-            <iframe
-              ref={iframeRef}
-              src={`/api/canva-proxy?url=${encodeURIComponent(form.canva_site_url)}`}
-              style={{ display: 'none' }}
-              onLoad={handleIframeLoad}
-            />
-          )}
 
           {/* Password */}
           <div>
