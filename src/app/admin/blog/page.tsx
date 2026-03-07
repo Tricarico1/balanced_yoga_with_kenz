@@ -407,7 +407,7 @@ export default function AdminManagePage() {
                           {post.category}
                         </span>
                         <span className="text-xs" style={{ color: '#92A07F' }}>{post.date}</span>
-                        {post.canva_embed_url && (
+                        {post.canva_site_url && (
                           <span
                             className="text-xs px-2 py-0.5 rounded-full"
                             style={{ backgroundColor: '#EBF0E8', color: '#3D5019' }}
