@@ -1,14 +1,8 @@
+const path = require('path')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    return [
-      {
-        // Route all canva.site assets through our API proxy which adds CORS headers
-        source: '/_assets/:path*',
-        destination: '/api/canva-asset?path=/_assets/:path*',
-      },
-    ]
-  },
+  outputFileTracingRoot: path.join(__dirname),
   images: {
     unoptimized: true,
     remotePatterns: [

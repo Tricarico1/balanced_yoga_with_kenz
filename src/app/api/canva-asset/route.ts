@@ -5,7 +5,7 @@ export const runtime = 'nodejs'
 export async function GET(req: NextRequest) {
   const path = req.nextUrl.searchParams.get('path')
 
-  if (!path || !path.startsWith('/_assets/')) {
+  if (!path || !path.includes('/_assets/')) {
     return new NextResponse('Invalid path', { status: 400 })
   }
 

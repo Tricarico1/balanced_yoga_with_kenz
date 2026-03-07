@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     if (typeof url === 'string' && url.startsWith(ORIGIN)) {
       var path = url.slice(ORIGIN.length);
       var ai = path.indexOf('/_assets/');
-      if (ai !== -1) return '/api/canva-asset?path=' + encodeURIComponent(path.slice(ai));
+      if (ai !== -1) return '/api/canva-asset?path=' + encodeURIComponent(path);
     }
     return url;
   }
