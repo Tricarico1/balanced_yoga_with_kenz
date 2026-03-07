@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -35,12 +35,37 @@ export default function NewBlogPostPage() {
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [error, setError] = useState('')
+  const [thumbStatus, setThumbStatus] = useState<'idle' | 'detecting' | 'found' | 'none'>('idle')
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // Pre-fill password if coming from manage page
   useEffect(() => {
     const saved = sessionStorage.getItem('byk_admin_secret')
     if (saved) setForm(f => ({ ...f, secret: saved }))
   }, [])
+
+  function detectThumbnail() {
+    if (!form.canva_site_url) return
+    setThumbStatus('detecting')
+  }
+
+  function handleIframeLoad() {
+    setTimeout(() => {
+      try {
+        const doc = iframeRef.current?.contentDocument
+        if (!doc) { setThumbStatus('none'); return }
+        const img = Array.from(doc.querySelectorAll('img')).find(i => i.src?.includes('_assets/media'))
+        if (img) {
+          setForm(f => ({ ...f, image_url: img.src }))
+          setThumbStatus('found')
+        } else {
+          setThumbStatus('none')
+        }
+      } catch {
+        setThumbStatus('none')
+      }
+    }, 4000)
+  }
 
   function handleTitleChange(title: string) {
     setForm(f => ({ ...f, title, slug: toSlug(title) }))
@@ -187,17 +212,52 @@ export default function NewBlogPostPage() {
             <p className="text-xs uppercase tracking-widest font-medium" style={{ color: '#B97230' }}>Content</p>
             <div>
               <label className={labelClass} style={{ color: '#486668' }}>
-                Canva Site URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— https://you.my.canva.site/… (best, works on mobile)</span>
+                Canva Site URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— https://you.my.canva.site/…</span>
               </label>
               <input
                 className={inputClass}
                 style={inputStyle}
                 placeholder="https://yourname.my.canva.site/..."
                 value={form.canva_site_url}
-                onChange={e => setForm(f => ({ ...f, canva_site_url: e.target.value }))}
+                onChange={e => {
+                  setForm(f => ({ ...f, canva_site_url: e.target.value }))
+                  setThumbStatus('idle')
+                }}
               />
+              {form.canva_site_url && thumbStatus === 'idle' && (
+                <button
+                  type="button"
+                  onClick={detectThumbnail}
+                  className="mt-2 text-xs px-3 py-1.5 rounded-lg border hover:opacity-70 transition-opacity"
+                  style={{ borderColor: '#C4B5A8', color: '#486668' }}
+                >
+                  Auto-detect thumbnail
+                </button>
+              )}
+              {thumbStatus === 'detecting' && (
+                <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Detecting thumbnail… (takes ~4 seconds)</p>
+              )}
+              {thumbStatus === 'found' && form.image_url && (
+                <div className="mt-2 flex items-center gap-3">
+                  <img src={form.image_url} alt="thumbnail" className="w-16 h-16 object-cover rounded-lg" style={{ border: '1px solid #E8DDD5' }} />
+                  <p className="text-xs" style={{ color: '#92A07F' }}>Thumbnail auto-detected ✓</p>
+                </div>
+              )}
+              {thumbStatus === 'none' && (
+                <p className="text-xs mt-2" style={{ color: '#B97230' }}>No image found — enter a URL manually above</p>
+              )}
             </div>
           </div>
+
+          {/* Hidden iframe for thumbnail detection */}
+          {thumbStatus === 'detecting' && (
+            <iframe
+              ref={iframeRef}
+              src={`/api/canva-proxy?url=${encodeURIComponent(form.canva_site_url)}`}
+              style={{ display: 'none' }}
+              onLoad={handleIframeLoad}
+            />
+          )}
 
           {/* Password */}
           <div>

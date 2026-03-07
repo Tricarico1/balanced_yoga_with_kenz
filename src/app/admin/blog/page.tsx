@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 
 function toSlug(title: string) {
@@ -49,6 +49,8 @@ export default function AdminManagePage() {
   const [saveError, setSaveError] = useState('')
 
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [thumbStatus, setThumbStatus] = useState<'idle' | 'detecting' | 'found' | 'none'>('idle')
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const loadPosts = useCallback(async (s: string) => {
     setLoading(true)
@@ -92,6 +94,7 @@ export default function AdminManagePage() {
   function startEdit(post: Post) {
     setEditingId(post.id)
     setSaveError('')
+    setThumbStatus('idle')
     setEditForm({
       title: post.title,
       slug: post.slug,
@@ -107,6 +110,30 @@ export default function AdminManagePage() {
     setEditingId(null)
     setEditForm(null)
     setSaveError('')
+    setThumbStatus('idle')
+  }
+
+  function detectThumbnail() {
+    if (!editForm?.canva_site_url) return
+    setThumbStatus('detecting')
+  }
+
+  function handleIframeLoad() {
+    setTimeout(() => {
+      try {
+        const doc = iframeRef.current?.contentDocument
+        if (!doc) { setThumbStatus('none'); return }
+        const img = Array.from(doc.querySelectorAll('img')).find(i => i.src?.includes('_assets/media'))
+        if (img) {
+          setEditForm(f => f ? { ...f, image_url: img.src } : f)
+          setThumbStatus('found')
+        } else {
+          setThumbStatus('none')
+        }
+      } catch {
+        setThumbStatus('none')
+      }
+    }, 4000)
   }
 
   async function saveEdit(post: Post) {
@@ -356,16 +383,51 @@ export default function AdminManagePage() {
 
                     <div>
                       <label className={labelClass} style={{ color: '#486668' }}>
-                        Canva Site URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— https://you.my.canva.site/… (best, works on mobile)</span>
+                        Canva Site URL <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— https://you.my.canva.site/…</span>
                       </label>
                       <input
                         className={inputClass}
                         style={inputStyle}
                         placeholder="https://yourname.my.canva.site/..."
                         value={editForm.canva_site_url}
-                        onChange={e => setEditForm(f => f ? { ...f, canva_site_url: e.target.value } : f)}
+                        onChange={e => {
+                          setEditForm(f => f ? { ...f, canva_site_url: e.target.value } : f)
+                          setThumbStatus('idle')
+                        }}
                       />
+                      {editForm.canva_site_url && thumbStatus === 'idle' && (
+                        <button
+                          type="button"
+                          onClick={detectThumbnail}
+                          className="mt-2 text-xs px-3 py-1.5 rounded-lg border hover:opacity-70 transition-opacity"
+                          style={{ borderColor: '#C4B5A8', color: '#486668' }}
+                        >
+                          Auto-detect thumbnail
+                        </button>
+                      )}
+                      {thumbStatus === 'detecting' && (
+                        <p className="text-xs mt-2" style={{ color: '#92A07F' }}>Detecting thumbnail… (takes ~4 seconds)</p>
+                      )}
+                      {thumbStatus === 'found' && editForm.image_url && (
+                        <div className="mt-2 flex items-center gap-3">
+                          <img src={editForm.image_url} alt="thumbnail" className="w-16 h-16 object-cover rounded-lg" style={{ border: '1px solid #E8DDD5' }} />
+                          <p className="text-xs" style={{ color: '#92A07F' }}>Thumbnail auto-detected ✓</p>
+                        </div>
+                      )}
+                      {thumbStatus === 'none' && (
+                        <p className="text-xs mt-2" style={{ color: '#B97230' }}>No image found — enter a URL manually in Cover Image URL</p>
+                      )}
                     </div>
+
+                    {/* Hidden iframe for thumbnail detection */}
+                    {thumbStatus === 'detecting' && editForm.canva_site_url && (
+                      <iframe
+                        ref={iframeRef}
+                        src={`/api/canva-proxy?url=${encodeURIComponent(editForm.canva_site_url)}`}
+                        style={{ display: 'none' }}
+                        onLoad={handleIframeLoad}
+                      />
+                    )}
 
 
                   </div>

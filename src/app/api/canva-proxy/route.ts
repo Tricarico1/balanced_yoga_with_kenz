@@ -23,10 +23,52 @@ export async function GET(req: NextRequest) {
       return new NextResponse(`Upstream error: ${res.status}`, { status: 502 })
     }
 
+    // Extract the canva.site origin (e.g. https://balancedyogawithkenz.my.canva.site)
+    const canvaOrigin = new URL(targetUrl).origin
+
     let html = await res.text()
-    // Force <base href="/"> so _assets/... paths always resolve to /_assets/... regardless of sub-path
-    // Our next.config.js rewrite proxies /_assets/* back to canva.site same-origin
+    // Force <base href="/"> so relative _assets/... paths resolve to /_assets/...
     html = html.replace(/<base\s+href="[^"]*"\s*\/?>/i, '<base href="/">')
+    // Remove crossorigin="anonymous" from all tags — canva.site doesn't return ACAO headers
+    // when proxied, so the browser blocks CORS-gated resources. Removing it allows them to load.
+    html = html.replace(/\s+crossorigin="anonymous"/gi, '')
+
+    // Inject an asset-rewriting script before any other scripts.
+    // Canva's JS constructs absolute image URLs using window.location.origin+pathname,
+    // e.g. https://balancedyogawithkenz.my.canva.site/blog-post-1/_assets/media/xxx.png
+    // We intercept img.src assignments and strip the canva origin so assets load via
+    // our /_assets/* rewrite instead of going directly to canva.site (which breaks CORS).
+    const assetPatchScript = `<script>
+(function(){
+  var ORIGIN = ${JSON.stringify(canvaOrigin)};
+  function rw(url) {
+    if (typeof url === 'string' && url.startsWith(ORIGIN)) {
+      var path = url.slice(ORIGIN.length);
+      var ai = path.indexOf('/_assets/');
+      if (ai !== -1) return '/api/canva-asset?path=' + encodeURIComponent(path.slice(ai));
+    }
+    return url;
+  }
+  var d = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+  Object.defineProperty(HTMLImageElement.prototype, 'src', {
+    set: function(v){ d.set.call(this, rw(v)); },
+    get: function(){ return d.get.call(this); },
+    configurable: true
+  });
+  var origSetAttr = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function(n, v){
+    if (n.toLowerCase() === 'crossorigin') return; // prevent CORS blocking (React uses camelCase crossOrigin)
+    origSetAttr.call(this, n, (n === 'src' && this instanceof HTMLImageElement) ? rw(v) : v);
+  };
+  // Also block property assignment (e.g. element.crossOrigin = 'anonymous')
+  Object.defineProperty(HTMLElement.prototype, 'crossOrigin', {
+    set: function(){},
+    get: function(){ return null; },
+    configurable: true
+  });
+})();
+</script>`
+    html = html.replace('<head>', '<head>' + assetPatchScript)
 
     return new NextResponse(html, {
       headers: {

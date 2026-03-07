@@ -3,15 +3,9 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        // Proxy canva.site assets same-origin (bypasses CORS on crossorigin scripts)
+        // Route all canva.site assets through our API proxy which adds CORS headers
         source: '/_assets/:path*',
-        destination: 'https://balancedyogawithkenz.my.canva.site/_assets/:path*',
-      },
-      {
-        // canva.site JS does history.pushState to the page slug, so assets also load
-        // from /<slug>/_assets/*. Proxy those back to canva.site too.
-        source: '/:prefix*/_assets/:path*',
-        destination: 'https://balancedyogawithkenz.my.canva.site/_assets/:path*',
+        destination: '/api/canva-asset?path=/_assets/:path*',
       },
     ]
   },
