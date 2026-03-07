@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface ContactPopupProps {
   isOpen: boolean;
@@ -10,7 +11,6 @@ interface ContactPopupProps {
 const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
 
@@ -20,36 +20,29 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
     setSubmitStatus("idle");
 
     try {
-      // Send email using our API route
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, newsletterOptIn }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, newsletterOptIn: true }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        console.error('API Error:', result);
-        throw new Error(result.error || 'Failed to send email');
+        throw new Error(result.error || 'Failed to send');
       }
 
       setSubmitStatus("success");
-      
-      // Reset form
       setName("");
       setEmail("");
-      
-      // Close popup after a delay
+
       setTimeout(() => {
         onClose();
         setSubmitStatus("idle");
-      }, 2000);
-      
+      }, 2500);
+
     } catch (error) {
-      console.error('Email send error:', error);
+      console.error('Submit error:', error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -60,108 +53,111 @@ const ContactPopup = ({ isOpen, onClose }: ContactPopupProps) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <div className="flex justify-end mb-2">
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <div
+        className="relative w-full overflow-hidden rounded-xl"
+        style={{
+          maxWidth: '780px',
+          backgroundColor: '#F5EFE8',
+          border: '1.5px dashed #C4B5A8',
+        }}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
 
-        <div className="text-center mb-6">
-          <h3 className="text-xl font-medium mb-3" style={{ color: '#153F55' }}>
-            Join the Membership Waitlist
-          </h3>
-          <p className="text-sm text-gray-600">
-            Kenz is designing a membership platform to create a more intimate yoga experience for you.
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            Enter your email to be notified when it's launched.
-          </p>
-        </div>
+        <div className="flex flex-col sm:flex-row">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1" style={{ color: '#153F55' }}>
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Your name"
+          {/* Image — top banner on mobile, right column on desktop */}
+          <div className="relative h-40 sm:h-auto sm:w-72 sm:flex-shrink-0 order-first sm:order-last">
+            <Image
+              src="/images/carry-on-flow.png"
+              alt="Yoga on the beach"
+              fill
+              className="object-cover"
+              style={{ objectPosition: 'center 53%' }}
             />
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: '#153F55' }}>
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="your.email@example.com"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="newsletterOptIn"
-              checked={newsletterOptIn}
-              onChange={(e) => setNewsletterOptIn(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 cursor-pointer"
-              style={{ accentColor: '#153F55' }}
-            />
-            <label htmlFor="newsletterOptIn" className="text-sm text-gray-600 cursor-pointer">
-              Check here to sign up for the newsletter
-            </label>
-          </div>
-
-          <div className="flex space-x-3 pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-2 text-white font-medium rounded-md transition-colors disabled:opacity-50"
-              style={{ backgroundColor: '#B97230' }}
+          {/* Text + form */}
+          <div className="flex-1 p-5 sm:p-10 flex flex-col justify-center order-last sm:order-first">
+            <h2
+              className="text-xl sm:text-5xl mb-1 sm:mb-4 leading-tight"
+              style={{ color: '#3D5019', fontFamily: 'Georgia, "Times New Roman", serif', fontWeight: 400 }}
             >
-              {isSubmitting ? "Sending..." : "Send"}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
+              The Carry-on Flow
+            </h2>
+
+            <p className="text-xs mb-1 sm:mb-4 sm:text-sm" style={{ color: '#486668' }}>
+              This 5-minute reset is your &ldquo;secret weapon.&rdquo;
+            </p>
+
+            <p className="hidden sm:block text-sm italic mb-3 leading-relaxed" style={{ color: '#486668' }}>
+              You know that stiff, achy feeling after a flight? As a fellow traveler, I know how you feel.
+            </p>
+
+            <p className="text-xs sm:text-sm italic mb-2 sm:mb-6 leading-snug" style={{ color: '#486668' }}>
+              The perfect reset for body and mind, available wherever you and your passport land.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3" suppressHydrationWarning>
+              <p className="text-xs px-2 py-1.5 sm:px-3 sm:py-3 rounded-md sm:text-sm" style={{ backgroundColor: '#E8D9C4', color: '#3D5019' }}>
+                Enter your email and I will send this <span style={{ fontWeight: 700 }}>exclusive</span> 5min Yoga class straight to your inbox, not posted anywhere else!
+              </p>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="your.email@example.com"
+                autoComplete="email"
+                suppressHydrationWarning
+                className="w-full px-3 py-2 text-sm rounded-md border outline-none focus:ring-2 focus:ring-amber-300 transition-shadow"
+                style={{ borderColor: '#C4B5A8', color: '#153F55', backgroundColor: 'white' }}
+              />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Your name"
+                autoComplete="name"
+                suppressHydrationWarning
+                className="w-full px-3 py-2 text-sm rounded-md border outline-none focus:ring-2 focus:ring-amber-300 transition-shadow"
+                style={{ borderColor: '#C4B5A8', color: '#153F55', backgroundColor: 'white' }}
+              />
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-2 sm:py-2.5 text-sm font-medium rounded-md transition-opacity hover:opacity-85 disabled:opacity-50"
+                style={{ backgroundColor: '#153F55', color: 'white' }}
+              >
+                {isSubmitting ? 'Sending…' : 'Send me the class'}
+              </button>
+
+              {submitStatus === "success" && (
+                <p className="text-xs sm:text-sm text-center pt-1" style={{ color: '#3D5019' }}>
+                  Check your inbox — your class is on its way!
+                </p>
+              )}
+              {submitStatus === "error" && (
+                <p className="text-xs sm:text-sm text-center pt-1" style={{ color: '#B97230' }}>
+                  Something went wrong. Please try again.
+                </p>
+              )}
+            </form>
           </div>
-
-          {submitStatus === "success" && (
-            <p className="text-green-600 text-sm text-center">
-              Thank you! We'll be in touch when the membership platform is ready.
-            </p>
-          )}
-
-          {submitStatus === "error" && (
-            <p className="text-red-600 text-sm text-center">
-              Something went wrong. Please try again.
-            </p>
-          )}
-        </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default ContactPopup; 
+export default ContactPopup;
