@@ -23,9 +23,10 @@ export async function GET(req: NextRequest) {
       return new NextResponse(`Upstream error: ${res.status}`, { status: 502 })
     }
 
-    const html = await res.text()
-    // canva.site HTML already has <base href="/"> so _assets/... paths resolve to /_assets/...
+    let html = await res.text()
+    // Force <base href="/"> so _assets/... paths always resolve to /_assets/... regardless of sub-path
     // Our next.config.js rewrite proxies /_assets/* back to canva.site same-origin
+    html = html.replace(/<base\s+href="[^"]*"\s*\/?>/i, '<base href="/">')
 
     return new NextResponse(html, {
       headers: {
