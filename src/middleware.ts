@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 
 const CANVA_ORIGIN = 'https://balancedyogawithkenz.my.canva.site'
 
-// Extract canva page path from Referer (e.g. "/blog-post-1" from
-// "http://localhost:3000/api/canva-proxy?url=https://...canva.site/blog-post-1")
+// ── Canva asset proxy ─────────────────────────────────────────────────────────
+
 function canvaPagePath(req: NextRequest): string | null {
   const referer = req.headers.get('referer') || ''
   try {
     const url = new URL(referer)
     const canvaUrl = url.searchParams.get('url')
     if (canvaUrl) {
-      const pagePath = new URL(canvaUrl).pathname // e.g. "/blog-post-1"
+      const pagePath = new URL(canvaUrl).pathname
       return pagePath === '/' ? null : pagePath.replace(/\/$/, '')
     }
-  } catch {
-    // ignore malformed referer
-  }
+  } catch { /* ignore */ }
   return null
 }
 
@@ -27,24 +26,15 @@ async function fetchAsset(path: string) {
   })
 }
 
-export async function middleware(req: NextRequest) {
+async function handleAssetProxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname
-
   try {
     let res = await fetchAsset(pathname)
-
-    // If not found at root, try the page-prefixed path using the Referer
     if (!res.ok) {
       const pagePath = canvaPagePath(req)
-      if (pagePath) {
-        res = await fetchAsset(`${pagePath}${pathname}`)
-      }
+      if (pagePath) res = await fetchAsset(`${pagePath}${pathname}`)
     }
-
-    if (!res.ok) {
-      return new NextResponse('Not found', { status: 404 })
-    }
-
+    if (!res.ok) return new NextResponse('Not found', { status: 404 })
     const buffer = await res.arrayBuffer()
     return new NextResponse(buffer, {
       headers: {
@@ -58,6 +48,60 @@ export async function middleware(req: NextRequest) {
   }
 }
 
+// ── Auth middleware ───────────────────────────────────────────────────────────
+
+async function handleAuth(req: NextRequest) {
+  let response = NextResponse.next({ request: req })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return req.cookies.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
+          response = NextResponse.next({ request: req })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    redirectUrl.searchParams.set('next', req.nextUrl.pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  return response
+}
+
+// ── Router ────────────────────────────────────────────────────────────────────
+
+export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname
+
+  if (pathname.startsWith('/_online')) {
+    return new NextResponse('ok', { status: 200 })
+  }
+
+  if (pathname.startsWith('/_assets/')) {
+    return handleAssetProxy(req)
+  }
+
+  if (pathname.startsWith('/classes')) {
+    return handleAuth(req)
+  }
+
+  return NextResponse.next()
+}
+
 export const config = {
-  matcher: ['/_assets/:path*'],
+  matcher: ['/_online', '/_assets/:path*', '/classes/:path*', '/classes'],
 }

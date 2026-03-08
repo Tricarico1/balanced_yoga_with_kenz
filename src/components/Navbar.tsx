@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
   const [scrolled, setScrolled] = useState(false);
@@ -10,6 +11,22 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
   const [yogaDropdownOpen, setYogaDropdownOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const isHome = pathname === '/';
+
+  function scrollTo(id: string) {
+    if (!isHome) {
+      router.push(`/#${id}`);
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) {
+      const offset = 80;
+      const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,28 +53,13 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
   }, [mobileMenuOpen]);
 
   const scrollToYogaOfferings = () => {
-    const element = document.getElementById('yoga-offerings');
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
+    scrollTo('yoga-offerings');
     setMobileMenuOpen(false);
     setYogaDropdownOpen(false);
   };
 
   const scrollToOnlineYoga = () => {
-    const element = document.getElementById('online-yoga');
-    if (element) {
-      const offset = 120;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
+    scrollTo('online-yoga');
     setMobileMenuOpen(false);
     setYogaDropdownOpen(false);
   };
@@ -122,18 +124,7 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
 
           {/* Membership */}
           <button
-            onClick={() => {
-              const element = document.getElementById('membership');
-              if (element) {
-                const offset = 80;
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - offset;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: 'smooth'
-                });
-              }
-            }}
+            onClick={() => scrollTo('membership')}
             className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80"
             style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
           >
@@ -161,32 +152,14 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
               onMouseLeave={() => setAboutDropdownOpen(false)}
             >
               <button
-                onClick={() => {
-                  const element = document.getElementById('about');
-                  if (element) {
-                    element.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start'
-                    });
-                  }
-                  setAboutDropdownOpen(false);
-                }}
+                onClick={() => { scrollTo('about'); setAboutDropdownOpen(false); }}
                 className="block w-full text-left px-4 py-2 text-sm transition-colors hover:opacity-80"
                 style={{ color: '#153F55' }}
               >
                 The Inspiration
               </button>
               <button
-                onClick={() => {
-                  const element = document.getElementById('experience');
-                  if (element) {
-                    element.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start'
-                    });
-                  }
-                  setAboutDropdownOpen(false);
-                }}
+                onClick={() => { scrollTo('experience'); setAboutDropdownOpen(false); }}
                 className="block w-full text-left px-4 py-2 text-sm transition-colors hover:opacity-80"
                 style={{ color: '#153F55' }}
               >
@@ -206,20 +179,21 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
 
           {/* Contact */}
           <button
-            onClick={() => {
-              const element = document.getElementById('contact');
-              if (element) {
-                element.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'start'
-                });
-              }
-            }}
+            onClick={() => scrollTo('contact')}
             className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80"
             style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
           >
             Contact
           </button>
+
+          {/* Members */}
+          <Link
+            href="/classes"
+            className="px-4 py-1.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-85"
+            style={{ backgroundColor: '#B97230', color: 'white' }}
+          >
+            Members
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -276,20 +250,8 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
 
             {/* Membership Mobile */}
             <button
-              onClick={() => {
-                const element = document.getElementById('membership');
-                if (element) {
-                  const offset = 80;
-                  const elementPosition = element.getBoundingClientRect().top;
-                  const offsetPosition = elementPosition + window.pageYOffset - offset;
-                  window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                  });
-                }
-                setMobileMenuOpen(false);
-              }}
-              className="nav-link text-right hover:opacity-80" 
+              onClick={() => { scrollTo('membership'); setMobileMenuOpen(false); }}
+              className="nav-link text-right hover:opacity-80"
               style={{ color: '#153F55' }}
             >
               Membership
@@ -310,34 +272,14 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
               {aboutDropdownOpen && (
                 <div className="ml-4 mt-2 space-y-2">
                   <button
-                    onClick={() => {
-                      const element = document.getElementById('about');
-                      if (element) {
-                        element.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'start'
-                        });
-                      }
-                      setMobileMenuOpen(false);
-                      setAboutDropdownOpen(false);
-                    }}
+                    onClick={() => { scrollTo('about'); setMobileMenuOpen(false); setAboutDropdownOpen(false); }}
                     className="block text-sm transition-colors hover:opacity-80 text-right w-full pr-4"
                     style={{ color: '#153F55' }}
                   >
                     The Inspiration
                   </button>
                   <button
-                    onClick={() => {
-                      const element = document.getElementById('experience');
-                      if (element) {
-                        element.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'start'
-                        });
-                      }
-                      setMobileMenuOpen(false);
-                      setAboutDropdownOpen(false);
-                    }}
+                    onClick={() => { scrollTo('experience'); setMobileMenuOpen(false); setAboutDropdownOpen(false); }}
                     className="block text-sm transition-colors hover:opacity-80 text-right w-full pr-4"
                     style={{ color: '#153F55' }}
                   >
@@ -359,21 +301,22 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
 
             {/* Contact Mobile */}
             <button
-              onClick={() => {
-                const element = document.getElementById('contact');
-                if (element) {
-                  element.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                  });
-                }
-                setMobileMenuOpen(false);
-              }}
+              onClick={() => { scrollTo('contact'); setMobileMenuOpen(false); }}
               className="nav-link text-right hover:opacity-80"
               style={{ color: '#153F55' }}
             >
               Contact
             </button>
+
+            {/* Members Mobile */}
+            <Link
+              href="/classes"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-right text-sm font-medium hover:opacity-80 transition-opacity"
+              style={{ color: '#B97230' }}
+            >
+              Members →
+            </Link>
           </div>
         </div>
       )}
