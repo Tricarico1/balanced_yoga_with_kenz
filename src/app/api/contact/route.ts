@@ -64,6 +64,35 @@ export async function POST(request: NextRequest) {
 
     console.log('Successfully saved to Supabase:', signupData);
 
+    // Add contact to Brevo and trigger automation
+    if (process.env.BREVO_API_KEY && process.env.BREVO_LIST_ID) {
+      try {
+        const brevoRes = await fetch('https://api.brevo.com/v3/contacts', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY,
+          },
+          body: JSON.stringify({
+            email: email.toLowerCase().trim(),
+            attributes: { FIRSTNAME: name.trim() },
+            listIds: [parseInt(process.env.BREVO_LIST_ID)],
+            updateEnabled: true, // update if contact already exists
+          }),
+        });
+        if (!brevoRes.ok) {
+          const err = await brevoRes.text();
+          console.error('Brevo error:', err);
+        } else {
+          console.log('Contact added to Brevo list', process.env.BREVO_LIST_ID);
+        }
+      } catch (brevoError) {
+        console.error('Brevo call failed:', brevoError);
+        // Don't fail the signup if Brevo is down
+      }
+    }
+
     // Optionally send email notification (if Resend is configured)
     if (resend) {
       console.log('Sending email notification...');
