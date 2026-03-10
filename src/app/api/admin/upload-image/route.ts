@@ -19,8 +19,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid file' }, { status: 400 })
     }
 
+    const type = (formData.get('type') as string) || 'blog'
     const ext = file.name.split('.').pop() || 'jpg'
-    const filename = `blog-${Date.now()}.${ext}`
+    const filename = `${type}-${Date.now()}.${ext}`
 
     const arrayBuffer = await file.arrayBuffer()
     const { error } = await supabaseAdmin.storage

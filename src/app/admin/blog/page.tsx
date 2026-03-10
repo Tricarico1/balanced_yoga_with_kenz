@@ -12,7 +12,11 @@ function toSlug(title: string) {
     .trim()
 }
 
-const CATEGORIES = ['Inspiration', 'Practice', 'Wellness', 'General']
+const BLOG_TAGS = [
+  'Yoga Lifestyle', 'Filming', 'Travel', 'Yoga Practice', 'Teaching Tips', 'Yoga Tips',
+  'Cuisine', 'Health Tips', 'Healthy Living', 'Earth Living', 'Wild Living',
+  'Green Witchcraft', 'Astrology', 'Exclusive Content',
+]
 
 type Post = {
   id: string
@@ -20,6 +24,7 @@ type Post = {
   title: string
   date: string
   category: string
+  tags: string[] | null
   excerpt: string
   image_url: string | null
   canva_site_url: string | null
@@ -30,6 +35,7 @@ type EditForm = {
   title: string
   slug: string
   category: string
+  tags: string[]
   excerpt: string
   date: string
   image_url: string
@@ -101,6 +107,7 @@ export default function AdminManagePage() {
       title: post.title,
       slug: post.slug,
       category: post.category,
+      tags: post.tags || (post.category ? [post.category] : []),
       excerpt: post.excerpt,
       date: post.date,
       image_url: post.image_url || '',
@@ -159,6 +166,7 @@ export default function AdminManagePage() {
     setSaving(true)
     setSaveError('')
 
+    const tags = editForm.tags || []
     const res = await fetch('/api/admin/blog', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -167,7 +175,8 @@ export default function AdminManagePage() {
         id: post.id,
         title: editForm.title,
         slug: editForm.slug,
-        category: editForm.category,
+        category: tags[0] || editForm.category,
+        tags,
         excerpt: editForm.excerpt,
         date: editForm.date,
         image_url: editForm.image_url || null,
@@ -191,7 +200,8 @@ export default function AdminManagePage() {
               ...p,
               title: editForm.title,
               slug: editForm.slug,
-              category: editForm.category,
+              category: tags[0] || editForm.category,
+              tags,
               excerpt: editForm.excerpt,
               date: editForm.date,
               image_url: editForm.image_url || null,
@@ -272,7 +282,11 @@ export default function AdminManagePage() {
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: '#92A07F' }}>Blog Admin</p>
+            <div className="flex items-center gap-3 mb-1">
+              <Link href="/" className="text-xs hover:opacity-70 transition-opacity" style={{ color: '#92A07F' }}>← Home</Link>
+              <span className="text-xs" style={{ color: '#C4B5A8' }}>|</span>
+              <p className="text-xs uppercase tracking-widest" style={{ color: '#92A07F' }}>Blog Admin</p>
+            </div>
             <h1 className="text-2xl font-medium" style={{ color: '#153F55' }}>Blog Posts</h1>
             <p className="text-sm mt-0.5" style={{ color: '#486668' }}>
               {posts.length} {posts.length === 1 ? 'post' : 'posts'}
@@ -364,20 +378,40 @@ export default function AdminManagePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass} style={{ color: '#486668' }}>Category</label>
-                        <select
-                          className={inputClass}
-                          style={inputStyle}
-                          value={editForm.category}
-                          onChange={e => setEditForm(f => f ? { ...f, category: e.target.value } : f)}
-                        >
-                          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
+                    <div>
+                      <label className={labelClass} style={{ color: '#486668' }}>Tags <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— select all that apply</span></label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {BLOG_TAGS.map(tag => {
+                          const selected = (editForm.tags || []).includes(tag)
+                          return (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => {
+                                const cur = editForm.tags || []
+                                const next = cur.includes(tag) ? cur.filter(t => t !== tag) : [...cur, tag]
+                                setEditForm(f => f ? { ...f, tags: next, category: next[0] || f.category } : f)
+                              }}
+                              className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                              style={selected
+                                ? { backgroundColor: '#153F55', color: 'white', borderColor: '#153F55' }
+                                : { backgroundColor: 'white', color: '#486668', borderColor: '#C4B5A8' }
+                              }
+                            >
+                              {tag}
+                            </button>
+                          )
+                        })}
                       </div>
-                      <div>
-                        <label className={labelClass} style={{ color: '#486668' }}>Cover Image</label>
+                      {(editForm.tags || []).length > 0 && (
+                        <p className="text-xs mt-1.5" style={{ color: '#92A07F' }}>
+                          Primary: <span style={{ color: '#B97230' }}>{editForm.tags![0]}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className={labelClass} style={{ color: '#486668' }}>Cover Image</label>
                         <input
                           className={inputClass}
                           style={inputStyle}
@@ -417,7 +451,6 @@ export default function AdminManagePage() {
                             style={{ border: '1px solid #E8DDD5' }}
                           />
                         )}
-                      </div>
                     </div>
 
                     <div>

@@ -2,6 +2,11 @@
 -- Run this in Supabase SQL editor if the column doesn't exist yet:
 -- ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS canva_embed_url_mobile TEXT;
 
+-- Migration: add tags array columns for multi-tag support
+-- Run both lines in Supabase SQL editor:
+-- ALTER TABLE videos ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
+-- ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
+
 -- Create the membership_signups table
 CREATE TABLE membership_signups (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

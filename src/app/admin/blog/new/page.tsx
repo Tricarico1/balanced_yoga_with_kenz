@@ -13,7 +13,11 @@ function toSlug(title: string) {
     .trim()
 }
 
-const CATEGORIES = ['Inspiration', 'Practice', 'Wellness', 'General']
+const BLOG_TAGS = [
+  'Yoga Lifestyle', 'Filming', 'Travel', 'Yoga Practice', 'Teaching Tips', 'Yoga Tips',
+  'Cuisine', 'Health Tips', 'Healthy Living', 'Earth Living', 'Wild Living',
+  'Green Witchcraft', 'Astrology', 'Exclusive Content',
+]
 
 export default function NewBlogPostPage() {
   const router = useRouter()
@@ -26,7 +30,8 @@ export default function NewBlogPostPage() {
   const [form, setForm] = useState({
     title: '',
     slug: '',
-    category: 'General',
+    category: '',
+    tags: [] as string[],
     excerpt: '',
     date: today,
     image_url: '',
@@ -102,7 +107,8 @@ export default function NewBlogPostPage() {
       body: JSON.stringify({
         title: form.title,
         slug: form.slug,
-        category: form.category,
+        category: form.tags[0] || form.category || 'General',
+        tags: form.tags,
         excerpt: form.excerpt,
         date: form.date,
         image_url: form.image_url || null,
@@ -172,28 +178,45 @@ export default function NewBlogPostPage() {
                 /blog/<span style={{ color: '#B97230' }}>{form.slug || 'your-post-title'}</span>
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass} style={{ color: '#486668' }}>Category</label>
-                <select
-                  className={inputClass}
-                  style={inputStyle}
-                  value={form.category}
-                  onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>Date</label>
+              <input
+                required
+                className={inputClass}
+                style={inputStyle}
+                value={form.date}
+                onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className={labelClass} style={{ color: '#486668' }}>Tags <span className="normal-case text-xs font-normal" style={{ color: '#92A07F' }}>— select all that apply</span></label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {BLOG_TAGS.map(tag => {
+                  const selected = form.tags.includes(tag)
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        const next = selected ? form.tags.filter(t => t !== tag) : [...form.tags, tag]
+                        setForm(f => ({ ...f, tags: next, category: next[0] || '' }))
+                      }}
+                      className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                      style={selected
+                        ? { backgroundColor: '#153F55', color: 'white', borderColor: '#153F55' }
+                        : { backgroundColor: 'white', color: '#486668', borderColor: '#C4B5A8' }
+                      }
+                    >
+                      {tag}
+                    </button>
+                  )
+                })}
               </div>
-              <div>
-                <label className={labelClass} style={{ color: '#486668' }}>Date</label>
-                <input
-                  required
-                  className={inputClass}
-                  style={inputStyle}
-                  value={form.date}
-                  onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                />
-              </div>
+              {form.tags.length > 0 && (
+                <p className="text-xs mt-1.5" style={{ color: '#92A07F' }}>
+                  Primary: <span style={{ color: '#B97230' }}>{form.tags[0]}</span>
+                </p>
+              )}
             </div>
           </div>
 

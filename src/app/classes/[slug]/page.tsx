@@ -19,7 +19,7 @@ export default async function VideoPage({ params }: { params: Promise<{ slug: st
 
   if (!video) notFound()
 
-  const libraryId = process.env.BUNNY_STREAM_LIBRARY_ID
+  const libraryId = process.env.BUNNY_STREAM_LIBRARY_ID || '613097'
 
   return (
     <div className="min-h-screen pb-16" style={{ backgroundColor: '#F2E8DE' }}>
@@ -34,12 +34,16 @@ export default async function VideoPage({ params }: { params: Promise<{ slug: st
           ← All Classes
         </Link>
 
-        {/* Category + title */}
+        {/* Tags + title */}
         <div className="mb-4">
-          {video.category && (
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#FDF0E0', color: '#B97230' }}>
-              {video.category}
-            </span>
+          {(video.tags?.length ? video.tags : video.category ? [video.category] : []).length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {(video.tags?.length ? video.tags : [video.category]).map((tag: string) => (
+                <span key={tag} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: '#FDF0E0', color: '#B97230' }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
           )}
           <h1 className="text-2xl sm:text-3xl font-medium mt-2 leading-tight" style={{ color: '#153F55' }}>{video.title}</h1>
           {video.duration_minutes && (

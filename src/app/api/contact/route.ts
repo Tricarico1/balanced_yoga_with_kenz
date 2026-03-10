@@ -64,10 +64,12 @@ export async function POST(request: NextRequest) {
 
     console.log('Successfully saved to Supabase:', signupData);
 
-    // Add contact to Brevo and trigger automation
+    // Run Brevo + Resend in parallel — don't block the response on either
+    const tasks: Promise<void>[] = []
+
     if (process.env.BREVO_API_KEY && process.env.BREVO_LIST_ID) {
-      try {
-        const brevoRes = await fetch('https://api.brevo.com/v3/contacts', {
+      tasks.push(
+        fetch('https://api.brevo.com/v3/contacts', {
           method: 'POST',
           headers: {
             'accept': 'application/json',
@@ -78,53 +80,28 @@ export async function POST(request: NextRequest) {
             email: email.toLowerCase().trim(),
             attributes: { FIRSTNAME: name.trim() },
             listIds: [parseInt(process.env.BREVO_LIST_ID)],
-            updateEnabled: true, // update if contact already exists
+            updateEnabled: true,
           }),
-        });
-        if (!brevoRes.ok) {
-          const err = await brevoRes.text();
-          console.error('Brevo error:', err);
-        } else {
-          console.log('Contact added to Brevo list', process.env.BREVO_LIST_ID);
-        }
-      } catch (brevoError) {
-        console.error('Brevo call failed:', brevoError);
-        // Don't fail the signup if Brevo is down
-      }
+        })
+          .then(r => { console.log(r.ok ? `Contact added to Brevo list ${process.env.BREVO_LIST_ID}` : 'Brevo error') })
+          .catch(e => { console.error('Brevo call failed:', e) })
+      )
     }
 
-    // Optionally send email notification (if Resend is configured)
     if (resend) {
-      console.log('Sending email notification...');
-      
-      try {
-        const { data: emailData, error: emailError } = await resend.emails.send({
+      tasks.push(
+        resend.emails.send({
           from: 'onboarding@resend.dev',
           to: ['nathanieltricarico@gmail.com'],
           subject: 'New Membership Interest',
-          html: `
-            <h2>New Membership Interest</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p>This person is interested in being notified when the membership platform is available.</p>
-            <hr>
-            <p><small>Sent from Balanced Yoga website</small></p>
-          `,
-        });
-
-        if (emailError) {
-          console.error('Email notification failed:', emailError);
-          // Don't fail the request if email fails, just log it
-        } else {
-          console.log('Email notification sent successfully');
-        }
-      } catch (emailError) {
-        console.error('Email notification error:', emailError);
-        // Don't fail the request if email fails
-      }
-    } else {
-      console.log('Resend not configured - skipping email notification');
+          html: `<h2>New Membership Interest</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p>`,
+        })
+          .then(({ error }) => { console.log(error ? `Resend error: ${error}` : 'Email notification sent') })
+          .catch(e => { console.error('Resend failed:', e) })
+      )
     }
+
+    await Promise.allSettled(tasks)
 
     return NextResponse.json({ 
       success: true, 

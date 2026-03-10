@@ -27,15 +27,18 @@ export async function POST(req: NextRequest) {
   if (!auth(body.secret)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const slug = body.slug || toSlug(body.title)
+  const tags: string[] = Array.isArray(body.tags) ? body.tags : []
   const { error } = await supabaseAdmin.from('videos').insert({
     title: body.title,
     slug,
     description: body.description || null,
     bunny_video_id: body.bunny_video_id,
     duration_minutes: body.duration_minutes ? parseInt(body.duration_minutes) : null,
-    category: body.category || null,
+    category: tags[0] || body.category || null,
+    tags,
     thumbnail_url: body.thumbnail_url || null,
     published: body.published ?? true,
+    is_free: body.is_free ?? false,
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -46,6 +49,7 @@ export async function PUT(req: NextRequest) {
   const body = await req.json()
   if (!auth(body.secret)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const tags: string[] = Array.isArray(body.tags) ? body.tags : []
   const { error } = await supabaseAdmin
     .from('videos')
     .update({
@@ -54,9 +58,11 @@ export async function PUT(req: NextRequest) {
       description: body.description || null,
       bunny_video_id: body.bunny_video_id,
       duration_minutes: body.duration_minutes ? parseInt(body.duration_minutes) : null,
-      category: body.category || null,
+      category: tags[0] || body.category || null,
+      tags,
       thumbnail_url: body.thumbnail_url || null,
       published: body.published ?? true,
+      is_free: body.is_free ?? false,
     })
     .eq('id', body.id)
 

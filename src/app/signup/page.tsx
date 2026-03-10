@@ -23,7 +23,7 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: name } },
@@ -35,6 +35,13 @@ export default function SignupPage() {
       return
     }
 
+    // If Supabase returns a session immediately, email confirmation is off — go straight to classes
+    if (data.session) {
+      router.push('/classes')
+      return
+    }
+
+    // Otherwise, email confirmation is required
     setSent(true)
   }
 

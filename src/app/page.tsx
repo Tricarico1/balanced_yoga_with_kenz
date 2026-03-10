@@ -1,7 +1,10 @@
+export const dynamic = 'force-dynamic'
+
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import SubscribeSection from "@/components/SubscribeSection";
 import MembershipSection from "@/components/MembershipSection";
+import VideoPreviewSection from "@/components/VideoPreviewSection";
 import AboutSection from "@/components/AboutSection";
 import ExperienceSection from "@/components/ExperienceSection";
 import BlogSection from "@/components/BlogSection";
@@ -14,6 +17,7 @@ export default function Home() {
       <Hero />
       <SubscribeSection />
       <MembershipSection />
+      <VideoPreviewSection />
       <AboutSection />
       <ExperienceSection />
       <BlogSection />
