@@ -4,7 +4,7 @@ import Link from 'next/link'
 export default async function VideoPreviewSection() {
   const { data: videos } = await supabaseAdmin
     .from('videos')
-    .select('id, title, slug, category, duration_minutes, thumbnail_url, is_free')
+    .select('id, title, slug, category, duration_minutes, thumbnail_url, is_free, description')
     .eq('published', true)
     .order('created_at', { ascending: false })
     .limit(6)
@@ -65,6 +65,7 @@ function VideoCard({ video }: {
     duration_minutes: number | null
     thumbnail_url: string | null
     is_free: boolean
+    description: string | null
   }
 }) {
   const href = video.is_free ? `/watch/${video.slug}` : '/signup'
@@ -141,6 +142,9 @@ function VideoCard({ video }: {
           )}
         </div>
         <h3 className="text-sm font-medium leading-snug" style={{ color: '#153F55' }}>{video.title}</h3>
+        {video.description && (
+          <p className="text-xs mt-1 leading-relaxed line-clamp-2" style={{ color: '#92A07F' }}>{video.description}</p>
+        )}
       </div>
     </Link>
   )
