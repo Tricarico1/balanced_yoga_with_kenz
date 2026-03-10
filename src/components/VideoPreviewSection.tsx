@@ -21,10 +21,10 @@ export default async function VideoPreviewSection() {
               Online Classes
             </p>
             <h2 className="text-3xl md:text-4xl font-medium uppercase tracking-wide mb-4" style={{ color: '#153F55' }}>
-              Yoga On Demand
+              Stream Any Time
             </h2>
             <p className="text-base max-w-xl mx-auto" style={{ color: '#486668' }}>
-              Practice anywhere, any time. New classes added regularly for members.
+              Every class, on your schedule. Always something new waiting for you.
             </p>
           </div>
 

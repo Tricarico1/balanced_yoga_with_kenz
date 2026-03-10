@@ -20,6 +20,9 @@ export default async function VideoPage({ params }: { params: Promise<{ slug: st
   if (!video) notFound()
 
   const libraryId = process.env.BUNNY_STREAM_LIBRARY_ID || '613097'
+  // Strip to bare UUID in case the stored value is a full Bunny URL
+  const uuidMatch = video.bunny_video_id.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)
+  const videoId = uuidMatch ? uuidMatch[0] : video.bunny_video_id
 
   return (
     <div className="min-h-screen pb-16" style={{ backgroundColor: '#F2E8DE' }}>
@@ -57,7 +60,7 @@ export default async function VideoPage({ params }: { params: Promise<{ slug: st
           style={{ aspectRatio: '16/9', backgroundColor: '#1a1a1a' }}
         >
           <iframe
-            src={`https://iframe.mediadelivery.net/embed/${libraryId}/${video.bunny_video_id}?autoplay=false&responsive=true`}
+            src={`https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?autoplay=false&responsive=true`}
             className="w-full h-full"
             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
             allowFullScreen

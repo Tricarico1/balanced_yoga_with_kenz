@@ -22,7 +22,10 @@ export default async function WatchPage({ params }: Props) {
   if (!video) notFound()
 
   const libraryId = process.env.BUNNY_STREAM_LIBRARY_ID || '613097'
-  const embedUrl = `https://iframe.mediadelivery.net/embed/${libraryId}/${video.bunny_video_id}?autoplay=false&loop=false&muted=false&preload=true`
+  // Strip to bare UUID in case the stored value is a full Bunny URL
+  const uuidMatch = video.bunny_video_id.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)
+  const videoId = uuidMatch ? uuidMatch[0] : video.bunny_video_id
+  const embedUrl = `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}?autoplay=false&loop=false&muted=false&preload=true`
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F2E8DE' }}>

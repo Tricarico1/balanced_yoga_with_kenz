@@ -149,6 +149,16 @@ const Footer = () => {
           </div>
 
         </div>
+
+        {/* Legal links */}
+        <div className="mt-10 pt-6 flex gap-4" style={{ borderTop: '1px solid #C4B5A8' }}>
+          <Link href="/privacy" className="text-xs hover:opacity-70 transition-opacity" style={{ color: '#92A07F' }}>
+            Privacy Policy
+          </Link>
+          <Link href="/terms" className="text-xs hover:opacity-70 transition-opacity" style={{ color: '#92A07F' }}>
+            Terms of Service
+          </Link>
+        </div>
       </div>
     </footer>
   );
