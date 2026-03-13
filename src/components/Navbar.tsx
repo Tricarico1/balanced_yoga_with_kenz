@@ -122,15 +122,6 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
             </div>
           </div>
 
-          {/* Membership */}
-          <button
-            onClick={() => scrollTo('membership')}
-            className="nav-link transition-colors duration-300 cursor-pointer hover:opacity-80"
-            style={{ color: isScrolled ? '#153F55' : '#F2E8DE' }}
-          >
-            Membership
-          </button>
-
           {/* About Dropdown */}
           <div className="relative group">
             <button
@@ -247,15 +238,6 @@ const Navbar = ({ forceScrolled = false }: { forceScrolled?: boolean }) => {
                 </div>
               )}
             </div>
-
-            {/* Membership Mobile */}
-            <button
-              onClick={() => { scrollTo('membership'); setMobileMenuOpen(false); }}
-              className="nav-link text-right hover:opacity-80"
-              style={{ color: '#153F55' }}
-            >
-              Membership
-            </button>
 
             {/* About Mobile */}
             <div>

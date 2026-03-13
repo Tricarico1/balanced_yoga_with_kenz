@@ -42,6 +42,13 @@ export default function SignupPage() {
       return
     }
 
+    // Sync to Brevo regardless of confirmation status
+    fetch('/api/brevo-sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email }),
+    }).catch(() => {})
+
     // If Supabase returns a session immediately, email confirmation is off — go straight to classes
     if (data.session) {
       router.push('/classes')
@@ -84,7 +91,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#92A07F' }}>Members Area</p>
           <h1 className="text-2xl font-medium" style={{ color: '#153F55' }}>Create Account</h1>
-          <p className="text-sm mt-2" style={{ color: '#486668' }}>Get access to all yoga classes</p>
+          <p className="text-sm mt-2" style={{ color: '#486668' }}>Get access to yoga classes</p>
         </div>
 
         {/* Google */}

@@ -12,18 +12,18 @@ export default async function VideoPreviewSection() {
   if (!videos || videos.length === 0) return null
 
   return (
-    <section id="online-yoga" className="py-20" style={{ backgroundColor: '#F2E8DE' }}>
+    <section id="online-yoga" className="py-20" style={{ backgroundColor: '#92A07F' }}>
       <div className="container-custom">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest mb-2 font-medium" style={{ color: '#92A07F' }}>
+            <p className="text-xs uppercase tracking-widest mb-2 font-medium" style={{ color: '#F2E8DE', opacity: 0.75 }}>
               Online Classes
             </p>
-            <h2 className="text-3xl md:text-4xl font-medium uppercase tracking-wide mb-4" style={{ color: '#153F55' }}>
+            <h2 className="text-3xl md:text-4xl font-medium uppercase tracking-wide mb-4" style={{ color: '#F2E8DE' }}>
               Stream Any Time
             </h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: '#486668' }}>
+            <p className="text-base max-w-xl mx-auto" style={{ color: '#F2E8DE', opacity: 0.85 }}>
               Every class, on your schedule. Always something new waiting for you.
             </p>
           </div>
@@ -44,9 +44,9 @@ export default async function VideoPreviewSection() {
             >
               Access Full Library
             </Link>
-            <p className="text-xs mt-3" style={{ color: '#92A07F' }}>
+            <p className="text-xs mt-3" style={{ color: '#F2E8DE', opacity: 0.8 }}>
               Already a member?{' '}
-              <Link href="/classes" className="underline hover:opacity-70" style={{ color: '#486668' }}>
+              <Link href="/classes" className="underline hover:opacity-70" style={{ color: '#F2E8DE' }}>
                 Sign in
               </Link>
             </p>

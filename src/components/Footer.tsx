@@ -103,7 +103,7 @@ const Footer = () => {
               Stay in the Loop
             </h3>
             <p className="text-xs mb-4 leading-relaxed" style={{ color: '#486668' }}>
-              Sign up for Mackenzie's latest updates, new class releases, and yoga retreat information.
+              Sign up for Mackenzie's latest updates, new class releases, membership information, and yoga retreats.
             </p>
 
             {submitStatus === "success" ? (

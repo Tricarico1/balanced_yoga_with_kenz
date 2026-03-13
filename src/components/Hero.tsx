@@ -48,7 +48,7 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium uppercase tracking-wider mb-12" style={{ color: '#F2E8DE' }}>
-          Join the journey
+          Balanced Yoga with Kenz
         </h1>
         <button
           onClick={scrollToYogaOfferings}
